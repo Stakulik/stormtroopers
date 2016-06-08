@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160608215234) do
+ActiveRecord::Schema.define(version: 20160608223848) do
 
   create_table "people", force: :cascade do |t|
     t.string   "name",       default: "", null: false
@@ -22,6 +22,20 @@ ActiveRecord::Schema.define(version: 20160608215234) do
     t.string   "height",     default: "", null: false
     t.string   "mass",       default: "", null: false
     t.string   "skin_color", default: "", null: false
+    t.datetime "created_at",              null: false
+    t.datetime "updated_at",              null: false
+  end
+
+  create_table "people_starships", id: false, force: :cascade do |t|
+    t.integer "person_id"
+    t.integer "starship_id"
+    t.index ["person_id"], name: "index_people_starships_on_person_id"
+    t.index ["starship_id"], name: "index_people_starships_on_starship_id"
+  end
+
+  create_table "starships", force: :cascade do |t|
+    t.string   "name",       default: ""
+    t.string   "model",      default: ""
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
   end
