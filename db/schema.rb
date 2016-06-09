@@ -13,6 +13,9 @@
 
 ActiveRecord::Schema.define(version: 20160608223848) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "people", force: :cascade do |t|
     t.string   "name",       default: "", null: false
     t.string   "birth_year", default: "", null: false
@@ -29,8 +32,8 @@ ActiveRecord::Schema.define(version: 20160608223848) do
   create_table "people_starships", id: false, force: :cascade do |t|
     t.integer "person_id"
     t.integer "starship_id"
-    t.index ["person_id"], name: "index_people_starships_on_person_id"
-    t.index ["starship_id"], name: "index_people_starships_on_starship_id"
+    t.index ["person_id"], name: "index_people_starships_on_person_id", using: :btree
+    t.index ["starship_id"], name: "index_people_starships_on_starship_id", using: :btree
   end
 
   create_table "starships", force: :cascade do |t|

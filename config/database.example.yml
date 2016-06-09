@@ -1,0 +1,15 @@
+development:
+  adapter: postgresql
+  database: stormtroopers_development
+  pool: 5
+  host: localhost
+  username: pg_user
+  password: pg_pass
+
+test:
+  adapter: postgresql
+  database: stormtroopers_test
+  pool: 5
+  host: localhost
+  username: pg_user
+  password: pg_pass

@@ -1,27 +1,32 @@
-Person.create([
-  { "name": "Luke Skywalker",
-    "height": "172",
-    "mass": "77",
-    "hair_color": "blond",
-    "skin_color": "fair",
-    "eye_color": "blue",
-    "birth_year": "19BBY",
-    "gender": "male"},
+ActiveRecord::Base.connection.execute("TRUNCATE PEOPLE")
+ActiveRecord::Base.connection.execute("TRUNCATE STARSHIPS")
 
-  { "name": "C-3PO",
-    "height": "167",
-    "mass": "75",
-    "hair_color": "n/a",
-    "skin_color": "gold",
-    "eye_color": "yellow",
-    "birth_year": "112BBY",
-    "gender": "n/a"}
-])
+def filter_starship_params(starship_data)
+  starship_data.except("manufacturer", "cost_in_credits", "max_atmosphering_speed", "crew", "passengers",
+                        "cargo_capacity", "consumables", "hyperdrive_rating", "MGLT", "starship_class", 
+                        "pilots", "films", "created", "edited", "url", "length")
+end
 
-Starship.create([
-  { "name": "CR90 corvette",
-    "model": "CR90 corvette"},
-  
-  { "name": "Star Destroyer",
-    "model": "Imperial I-class Star Destroyer"}
-])
+def filter_person_params(person_data)
+  person_data.except("url", "created", "edited", "films", "homeworld", "species", "vehicles", "starships")
+end
+
+1.upto(15) do |c|
+
+  sleep(0.5) if c % 4 == 0
+
+  [ "people", "starships" ].each.with_index do |subject, i|
+
+    raw_data = RestClient.get "https://swapi.co/api/#{subject}/#{c}/" rescue nil
+
+    next unless raw_data
+
+    data = JSON.parse(raw_data)
+
+    if i == 0
+      Person.create(filter_person_params(data))
+    else
+      Starship.create(filter_starship_params(data))
+    end
+  end
+end
