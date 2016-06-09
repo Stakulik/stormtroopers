@@ -1,0 +1,18 @@
+default: &default
+  adapter: postgresql
+  pool: 5
+  host: localhost
+  username: stakulik
+  password: "qazwsx"
+
+development:
+  <<: *default
+  database: stormtroopers_development
+
+test:
+  <<: *default
+  database: stormtroopers_test
+
+production:
+  <<: *default
+  database: stormtroopers_production

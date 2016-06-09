@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :planets
   match '*any' => 'application#options', :via => [:options]
 
   scope module: "api" do

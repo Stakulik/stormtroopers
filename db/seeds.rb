@@ -1,32 +1,44 @@
+ActiveRecord::Base.connection.execute("TRUNCATE PLANETS")
 ActiveRecord::Base.connection.execute("TRUNCATE PEOPLE")
 ActiveRecord::Base.connection.execute("TRUNCATE STARSHIPS")
 
-def filter_starship_params(starship_data)
-  starship_data.except("manufacturer", "cost_in_credits", "max_atmosphering_speed", "crew", "passengers",
-                        "cargo_capacity", "consumables", "hyperdrive_rating", "MGLT", "starship_class", 
-                        "pilots", "films", "created", "edited", "url", "length")
+def create_subject(data, i)
+  if i == 0
+    Planet.create(filter_planet_params(data))
+  elsif i == 1
+    Person.create(filter_person_params(data))
+  else
+    starship_to_pilots(data["pilots"], Starship.create(filter_starship_params(data)))
+  end
+end
+
+def filter_planet_params(planet_data)
+  planet_data.except("residents", "films", "created", "edited")
 end
 
 def filter_person_params(person_data)
-  person_data.except("url", "created", "edited", "films", "homeworld", "species", "vehicles", "starships")
+  person_data["planet_id"] = Planet.where(url: person_data["homeworld"]).first.id rescue nil
+
+  person_data.except("created", "edited", "films", "homeworld", "species", "vehicles", "starships")
 end
 
-1.upto(15) do |c|
+def filter_starship_params(starship_data)
+  starship_data.except("pilots", "films", "created", "edited")
+end
 
-  sleep(0.5) if c % 4 == 0
+def starship_to_pilots(pilots, starship)
+  pilots.each do |pilot_url|
+    pilot = Person.where(url: pilot_url).first rescue nil
 
-  [ "people", "starships" ].each.with_index do |subject, i|
+    pilot.starships << starship if pilot
+  end
+end
 
+["planets", "people", "starships"].each.with_index do |subject, i|
+
+  1.upto(i == 0 ? 61 : i == 1 ? 87 : 37) do |c|
     raw_data = RestClient.get "https://swapi.co/api/#{subject}/#{c}/" rescue nil
 
-    next unless raw_data
-
-    data = JSON.parse(raw_data)
-
-    if i == 0
-      Person.create(filter_person_params(data))
-    else
-      Starship.create(filter_starship_params(data))
-    end
+    create_subject(JSON.parse(raw_data), i) if raw_data
   end
 end
