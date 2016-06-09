@@ -3,6 +3,6 @@ class Starships::ShowSerializer < StarshipSerializer
 
   attributes(*(Starship.attribute_names - ["created_at", "updated_at"] ).map(&:to_sym))
 
-  has_many :people, serializer: People::IndexSerializer
+  has_many :pilots, serializer: People::IndexSerializer
 
 end

@@ -44,7 +44,8 @@ module Api::V1
     end
 
     def starship_params
-      params.require(:starship).permit(:name, :model)
+      params.require(:starship).permit(:name, :model, :manufacturer, :cost_in_credits, :length, :max_atmosphering_speed,
+        :crew, :passengers, :cargo_capacity, :consumables, :hyperdrive_rating, :MGLT, :starship_class, :url)
     end
 
   end

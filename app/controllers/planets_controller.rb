@@ -1,2 +1,0 @@
-class PlanetsController < ApplicationController
-end
