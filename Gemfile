@@ -15,6 +15,8 @@ gem 'devise'
 
 gem 'jwt'
 
+gem 'haml-rails', '~> 0.9.0'
+
 group :development, :test do
   gem 'byebug', platform: :mri
 end
