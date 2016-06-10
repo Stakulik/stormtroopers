@@ -2,10 +2,13 @@ Rails.application.routes.draw do
 
   get "/index", to: "pages#index"
 
-  match "*any" => "application#options", :via => [:options]
+  post "/authenticate", to: "auth#authenticate"
+
+  match "*any", to: "application#options", :via => [:options]
 
   scope module: "api" do
-    namespace :v1 do 
+    namespace :v1 do
+      resources :users
       resources :people
       resources :starships
       resources :planets

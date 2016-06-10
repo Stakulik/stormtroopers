@@ -6,4 +6,9 @@ class User < ApplicationRecord
 
   before_save { self.email = email.downcase }
 
+  def self.find_by_credentials(email, password)
+    return nil unless email && password
+
+    User.find_by(email: email)&.authenticate(password)
+  end
 end
