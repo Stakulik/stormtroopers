@@ -11,8 +11,6 @@ gem 'active_model_serializers', '~> 0.9.3'
 
 gem 'rest-client'
 
-gem 'devise'
-
 gem 'jwt'
 
 group :development, :test do
