@@ -11,4 +11,5 @@ class User < ApplicationRecord
 
     User.find_by(email: email)&.authenticate(password)
   end
+
 end

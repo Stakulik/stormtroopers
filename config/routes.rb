@@ -2,8 +2,12 @@ Rails.application.routes.draw do
 
   get "/index", to: "pages#index"
 
-  post "/authenticate", to: "auth#authenticate"
-  delete "/logout", to: "auth#log_out" 
+  post "/login", to: "session#create"
+  delete "/logout", to: "session#destroy"
+
+  post "/signup", to: "users#create"
+  get "/confirmation", to: "users#confirmation"
+  delete "/destroy_account", to: "users#destroy"
 
   match "*any", to: "application#options", :via => [:options]
 

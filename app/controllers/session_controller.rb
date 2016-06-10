@@ -1,8 +1,7 @@
-class AuthController < ApplicationController
-  before_action :authenticate_request!, only: [:log_out]
+class SessionController < ApplicationController
+  before_action :authenticate_request!, only: [:destroy]
 
-
-  def authenticate
+  def create
     user = User.find_by_credentials(params[:email], params[:password])
 
     if user
@@ -14,7 +13,7 @@ class AuthController < ApplicationController
     end
   end
 
-  def log_out
+  def destroy
     current_user.update_attribute(:auth_token, AuthToken.encode({ user_id: current_user.id }, 0))
 
     render json: { success: ["Logged out successfully"] }
