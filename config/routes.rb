@@ -1,5 +1,12 @@
 Rails.application.routes.draw do
-  match '*any' => 'application#options', :via => [:options]
+
+  get "/index", to: "pages#index"
+
+  post "auth_user" => "authentication#authenticate_user"
+
+  devise_for :users
+
+  match "*any" => "application#options", :via => [:options]
 
   scope module: "api" do
     namespace :v1 do 
