@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   get "/index", to: "pages#index"
 
   post "/authenticate", to: "auth#authenticate"
+  delete "/logout", to: "auth#log_out" 
 
   match "*any", to: "application#options", :via => [:options]
 
