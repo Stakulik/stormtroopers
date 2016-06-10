@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :authenticate_request!, except: [:create]
+  before_action :authenticate_request!, except: [:create, :confirmation]
   before_action :add_confirmation_token, only: [:create]
 
   def show
