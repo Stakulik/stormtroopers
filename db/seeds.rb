@@ -37,6 +37,7 @@ end
 ["planets", "people", "starships"].each.with_index do |subject, i|
 
   1.upto(i == 0 ? 61 : i == 1 ? 87 : 37) do |c|
+
     raw_data = RestClient.get "https://swapi.co/api/#{subject}/#{c}/" rescue nil
 
     create_subject(JSON.parse(raw_data), i) if raw_data
