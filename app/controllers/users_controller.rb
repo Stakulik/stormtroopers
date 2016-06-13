@@ -1,11 +1,11 @@
 class UsersController < ApplicationController
+  before_action :authenticate_request!, only: [:show, :update, :destroy]
   before_action :add_confirmation_token, only: [:create]
   before_action :get_user_by_email, only: [:resend_confirmation, :forgot_password, :update_password]
-  before_action :authenticate_request!, only: [:show, :update, :destroy]
   before_action :check_user_confirmation, only: [:forgot_password, :update_password]
 
   def show
-    @current_user.to_json(only: [:email, :first_name, :last_name])
+    render json: @current_user, serializer: Users::ShowSerializer
   end
 
   def create
@@ -18,6 +18,10 @@ class UsersController < ApplicationController
     else
       render json: { errors: [user.errors.messages] }
     end
+  end
+
+  def edit
+    render json: @current_user, serializer: Users::EditSerializer
   end
 
   def update

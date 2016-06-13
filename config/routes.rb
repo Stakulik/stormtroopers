@@ -15,7 +15,9 @@ Rails.application.routes.draw do
   get "/reset_password", to: "users#reset_password"
   post "/update_password", to: "users#update_password"
 
-  resource :users
+  resources :users, except: [:index] do
+    member { get "edit", to: "users:edit" }
+  end
 
   scope module: "api" do
     namespace :v1 do

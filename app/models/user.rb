@@ -7,8 +7,8 @@ class User < ApplicationRecord
   
   before_save do
     self.email = email.downcase
-    self.first_name.capitalize
-    self.last_name.capitalize
+    self.first_name = first_name.capitalize
+    self.last_name = last_name.capitalize
   end
 
   has_secure_password

@@ -1,4 +1,16 @@
 class Users::EditSerializer < UserSerializer
-  attributes(*(Person.attribute_names - ["created_at", "updated_at"] ).map(&:to_sym))
+  attributes :email, :first_name, :last_name, :password, :password_confirmation, :current_password
+
+  def password
+    ""
+  end
+
+  def password_confirmation
+    ""
+  end
+
+  def current_password
+    ""
+  end
 
 end
