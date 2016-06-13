@@ -3,7 +3,7 @@ class UsersController < ApplicationController
   before_action :add_confirmation_token, only: [:create]
 
   def show
-    @current_user.to_json(only: [:email])
+    @current_user.to_json(only: [:email, :first_name, :last_name])
   end
 
   def create
@@ -13,7 +13,7 @@ class UsersController < ApplicationController
       # отправить письмо
       render json: { success: ["We've send confirmation instructions onto #{user.email}"] }
     else
-      render json: { errors: [user.errors.messages.to_json] }
+      render json: { errors: [user.errors.messages] }
     end
   end
 
@@ -21,7 +21,7 @@ class UsersController < ApplicationController
     if @current_user.update_attributes(user_params)
       render json: { success: ["Updated successfully"] }
     else
-      render json: { errors: [@current_user.errors.messages.to_json] }
+      render json: { errors: [@current_user.errors.messages] }
     end
   end
 
@@ -45,6 +45,32 @@ class UsersController < ApplicationController
     render json: { errors: ["Confirmation link is invalid."] }
   end
 
+  def reset_password
+    user = User.find_by(email: params[:email])
+
+    if user
+      user.update_attribute(:reset_password_token, generate_token)
+
+      # выслать письмо 
+
+      render json: { success: ["We've send instructions onto #{user.email}"] }
+    else
+      render json: { errors: ["Email not found"] }
+    end
+  end
+
+  def update_password
+    user = User.find_by(reset_password_token: params[:reset_password_token])
+
+    if !user
+      render json: { errors: ["Link is invalid."] }
+    elsif user&.update_attributes(user_params)
+      render json: { success: ["Updated successfully."] }
+    else
+      render json: { errors: [user.errors.messages] }
+    end
+  end
+
   private
 
   def user_params
@@ -53,7 +79,11 @@ class UsersController < ApplicationController
   end
 
   def add_confirmation_token
-    params[:user][:confirmation_token] = SecureRandom.hex
+    params[:user][:confirmation_token] = generate_token
+  end
+
+  def generate_token
+    SecureRandom.hex
   end
 
 end
