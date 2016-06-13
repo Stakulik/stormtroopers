@@ -1,10 +1,17 @@
 class User < ApplicationRecord
   validates :email, uniqueness: { case_sensitive: false }, length: { in: 6..30 }, 
-                  format: { with: /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i }
+    format: { with: /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i }
+  validates :first_name, length: { in: 3..30 }
+  validates :last_name, length: { in: 3..30 }
+  validates :password, length: { in: 6..20}
+  
+  before_save do
+    self.email = email.downcase
+    self.first_name.capitalize
+    self.last_name.capitalize
+  end
 
   has_secure_password
-
-  before_save { self.email = email.downcase }
 
   def self.find_by_credentials(email, password)
     return nil unless email && password

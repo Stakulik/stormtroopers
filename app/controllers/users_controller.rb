@@ -1,19 +1,22 @@
 class UsersController < ApplicationController
-  before_action :authenticate_request!, except: [:create, :confirmation]
   before_action :add_confirmation_token, only: [:create]
+  before_action :get_user_by_email, only: [:resend_confirmation, :forgot_password, :update_password]
+  before_action :authenticate_request!, only: [:show, :update, :destroy]
+  before_action :check_user_confirmation, only: [:forgot_password, :update_password]
 
   def show
-    @current_user.to_json(only: [:email])
+    @current_user.to_json(only: [:email, :first_name, :last_name])
   end
 
   def create
     user = User.new(user_params)
 
     if user.save
-      # отправить письмо
+      RegistrationMailer.confirmation_instructions(user).deliver_now
+
       render json: { success: ["We've send confirmation instructions onto #{user.email}"] }
     else
-      render json: { errors: [user.errors.messages.to_json] }
+      render json: { errors: [user.errors.messages] }
     end
   end
 
@@ -21,7 +24,7 @@ class UsersController < ApplicationController
     if @current_user.update_attributes(user_params)
       render json: { success: ["Updated successfully"] }
     else
-      render json: { errors: [@current_user.errors.messages.to_json] }
+      render json: { errors: [@current_user.errors.messages] }
     end
   end
 
@@ -36,7 +39,9 @@ class UsersController < ApplicationController
       user = User.find_by(confirmation_token: conf_token)
 
       if user && !user.confirmed_at
-        user.update_attributes(confirmation_token: nil, confirmed_at: Time.now)
+        user.assign_attributes({ confirmation_token: nil, confirmed_at: Time.now })
+
+        user.save(validate: false)
 
         return render json: { success: ["Your account has been successfully confirmed"] }
       end
@@ -45,15 +50,73 @@ class UsersController < ApplicationController
     render json: { errors: ["Confirmation link is invalid."] }
   end
 
+  def resend_confirmation
+    if @user&.confirmed_at
+      render json: { errors: ["Email was already confirmed, please try signing in"] }
+    elsif @user&.confirmation_token
+      RegistrationMailer.confirmation_instructions(@user).deliver_now
+
+      render json: { success: ["We've send confirmation instructions onto #{@user.email}"] }
+    else
+      render json: { errors: ["Email not found"] }
+    end
+  end
+
+  def forgot_password
+    if @user
+      @user.update_attribute(:reset_password_token, generate_token)
+
+      RegistrationMailer.reset_password_instructions(@user).deliver_now
+
+      render json: { success: ["We've send instructions onto #{@user.email}"] }
+    else
+      render json: { errors: ["Email not found"] }
+    end
+  end
+
+  def reset_password
+    user = User.find_by(reset_password_token: params[:reset_password_token])
+
+    if user
+      render json: { email: user.email }
+    else
+      render json: { errors: ["Link is invalid."] }
+    end
+  end
+
+  def update_password
+    if !@user
+      render json: { errors: ["Link is invalid."] }
+    elsif @user&.update_attributes(user_params)
+      @user.update_attribute(:reset_password_token, nil)
+
+      render json: { success: ["Updated successfully."] }
+    else
+      render json: { errors: [@user.errors.messages] }
+    end
+  end
+
   private
 
   def user_params
-    params.require(:user).permit(:email, :password, :password_confirmation, :auth_token, :confirmation_token,
-      :confirmed_at)
+    params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :auth_token,
+      :confirmation_token, :confirmed_at)
   end
 
   def add_confirmation_token
-    params[:user][:confirmation_token] = SecureRandom.hex
+    params[:user][:confirmation_token] = generate_token
+  end
+
+  def check_user_confirmation
+    render json: { errors: ["You have to confirm your email"] } if @user && !@user.confirmed_at
+  end
+
+  def get_user_by_email
+    @user = User.find_by(email: params[:email] || user_params[:email]) rescue nil
+  end
+
+  def generate_token
+    SecureRandom.hex
   end
 
 end
