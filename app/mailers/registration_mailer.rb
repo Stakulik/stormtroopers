@@ -6,16 +6,10 @@ class RegistrationMailer < ApplicationMailer
     mail(to: @user.email, subject: "Welcome to Stormtroopers!")
   end
 
-  def password_change
+  def reset_password_instructions(user)
+    @user = user
 
-  end
-
-  def reset_password_instructions
-
-  end
-
-  def unlock_instructions
-
+    mail(to: @user.email, subject: "Reset password instructions")
   end
 
 end
