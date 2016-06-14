@@ -77,4 +77,8 @@ protected
     render json: { errors: ["Not Authenticated"] }, status: :unauthorized
   end
 
+  def check_user_confirmation
+    render json: { errors: ["You have to confirm your email"] } if @user && !@user.confirmed_at
+  end
+
 end
