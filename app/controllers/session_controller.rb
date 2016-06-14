@@ -11,7 +11,7 @@ class SessionController < ApplicationController
 
       render json: authentication_payload(user)
     else
-      render json: { errors: ["Invalid email or password"] }, status: :unauthorized
+      render json: { errors: ["That email/password combination is not valid."] }, status: :unauthorized
     end
   end
 

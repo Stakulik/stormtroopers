@@ -14,7 +14,7 @@ class UsersController < ApplicationController
     if user.save
       RegistrationMailer.confirmation_instructions(user).deliver_now
 
-      render json: { success: ["We've send confirmation instructions onto #{user.email}"] }
+      render json: { success: ["Please go to your inbox #{user.email} and confirm creating an account"] }
     else
       render json: { errors: [user.errors.messages] }
     end

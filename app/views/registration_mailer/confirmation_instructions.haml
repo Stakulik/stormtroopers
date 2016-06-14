@@ -1,5 +1,7 @@
-%p Welcome #{@user.email}
+%p Hello #{@user.first_name},
 
-%p You can confirm your account email through the link below:
+%p Thanks for creating an account on Stormtroopers. We're ready to confirm your account. All we need to do is make sure this is the correct email address.
 
 %p= link_to "Confirm my account", confirmation_url(confirmation_token: @user.confirmation_token)
+
+%p Thank you for signing up.
