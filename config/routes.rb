@@ -17,7 +17,6 @@ Rails.application.routes.draw do
       post "/update_password", to: "users#update_password"
       delete "/destroy_account", to: "users#destroy"
 
-
       resources :users, except: [:index] do
         member { get "edit", to: "users:edit" }
       end
