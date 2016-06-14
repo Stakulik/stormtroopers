@@ -1,17 +1,10 @@
-class AccessDeniedError < StandardError
-end
-class NotAuthenticatedError < StandardError
-end
-class AuthenticationTimeoutError < StandardError
-end
-
 class ApplicationController < ActionController::API
   include ActionController::Serialization
-
+  require "exceptions"
   attr_reader :current_user
 
-  rescue_from AuthenticationTimeoutError, with: :authentication_timeout
-  rescue_from NotAuthenticatedError, with: :user_not_authenticated
+  rescue_from Exceptions::AuthenticationTimeoutError, with: :authentication_timeout
+  rescue_from Exceptions::NotAuthenticatedError, with: :user_not_authenticated
 
   before_action :add_allow_credentials_headers
   
@@ -34,11 +27,11 @@ protected
   def authenticate_request!
     @current_user = User.find_by(auth_token: request.headers["Authorization"]) rescue nil
 
-    fail NotAuthenticatedError unless @current_user
+    fail Exceptions::NotAuthenticatedError unless @current_user
   rescue JWT::ExpiredSignature
-    raise AuthenticationTimeoutError
+    raise Exceptions::AuthenticationTimeoutError
   rescue JWT::VerificationError, JWT::DecodeError
-    raise NotAuthenticatedError
+    raise Exceptions::NotAuthenticatedError
   end
 
   private

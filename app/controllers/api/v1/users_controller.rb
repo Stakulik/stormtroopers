@@ -21,11 +21,15 @@ module Api::V1
       end
     end
 
-    def edit
-      render json: @current_user, serializer: Users::EditSerializer
-    end
+    # def edit
+    #   render json: @current_user, serializer: Users::EditSerializer
+    # end
 
     def update
+      unless User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
+        return render json: { errors: ["Wrong current password"] }
+      end
+
       if @current_user.update_attributes(user_params)
         render json: { success: ["Updated successfully"] }
       else
@@ -105,7 +109,7 @@ module Api::V1
 
     def user_params
       params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :auth_token,
-        :confirmation_token, :confirmed_at)
+        :confirmation_token, :confirmed_at, :current_password)
     end
 
     def add_confirmation_token

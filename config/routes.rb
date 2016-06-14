@@ -18,7 +18,7 @@ Rails.application.routes.draw do
       delete "/destroy_account", to: "users#destroy"
 
       resources :users, except: [:index] do
-        member { get "edit", to: "users:edit" }
+        # member { get "edit", to: "users:edit" }
       end
 
       resources :people
