@@ -99,9 +99,9 @@ module Api::V1
       elsif @user&.update_attributes(user_params)
         @user.update_attribute(:reset_password_token, nil)
 
-        render json: { success: ["Updated successfully."] }
+        render nothing: true, status: :ok
       else
-        render json: { errors: [@user.errors.messages] }
+        render json: @user.errors, status: :unprocessable_entity
       end
     end
 

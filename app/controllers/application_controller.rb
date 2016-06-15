@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::API
   include ActionController::Serialization
   require "exceptions"
+  rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
   attr_reader :current_user
 
   rescue_from Exceptions::AuthenticationTimeoutError, with: :authentication_timeout
@@ -25,7 +26,7 @@ protected
   # Call this from child controllers in a before_action or from
   # within the action method itself
   def authenticate_request!
-    @current_user = User.find_by(auth_token: request.headers["Authorization"]) rescue nil
+    @current_user = User.find_by(auth_token: request.headers["AUTHORIZATION"]) rescue nil
 
     fail Exceptions::NotAuthenticatedError unless @current_user
   rescue JWT::ExpiredSignature
@@ -74,4 +75,7 @@ protected
     render json: { errors: ["You have to confirm your email"] } if @user && !@user.confirmed_at
   end
 
+  def record_not_found
+    render plain: "404 Not Found", status: :not_found
+  end
 end
