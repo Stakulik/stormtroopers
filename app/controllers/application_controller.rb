@@ -12,7 +12,7 @@ class ApplicationController < ActionController::API
   def add_allow_credentials_headers                                                                                                                                                       
     response.headers["Access-Control-Allow-Origin"] = request.headers["Origin"] || "*"                                                                                                                                                                                                     
     response.headers["Access-Control-Allow-Credentials"] = "true"                                                                                                                                                                                                                          
-  end 
+  end
 
   def options                                                                                                                                                                                                                                                                              
     head status: 200, "Access-Control-Allow-Headers": "accept, content-type"                                                                                                                                                                                                         
@@ -60,19 +60,19 @@ protected
   # Helper Methods for responding to errors
   # ------------------------------------------------------------
   def authentication_timeout
-    render json: { errors: ["Authentication Timeout"] }, status: 419
+    render json: { errors: "Authentication Timeout" }, status: 419
   end
 
   def forbidden_resource
-    render json: { errors: ["Not Authorized To Access Resource"] }, status: :forbidden
+    render json: { errors: "Not Authorized To Access Resource" }, status: :forbidden
   end
 
   def user_not_authenticated
-    render json: { errors: ["Not Authenticated"] }, status: :unauthorized
+    render json: { errors: "Not Authenticated" }, status: :unauthorized
   end
 
   def check_user_confirmation
-    render json: { errors: ["You have to confirm your email"] } if @user && !@user.confirmed_at
+    render json: { errors: "You have to confirm your email" }, status: :forbidden if @user && !@user.confirmed_at
   end
 
   def record_not_found

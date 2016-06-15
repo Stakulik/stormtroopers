@@ -4,18 +4,18 @@ module Api::V1
     before_action :set_planet, only: [:show, :update, :destroy]
 
     def index
-      @planet = Planet.all
+      planet = Planet.all
 
-      render json: @planet, each_serializer: Planets::IndexSerializer
+      render json: planet, each_serializer: Planets::IndexSerializer
     end
 
     def create
-      @planet = Planet.new(planet_params)
+      planet = Planet.new(planet_params)
 
-      if @planet.save
-        render json: @planet, status: :created, serializer: Planets::ShowSerializer
+      if planet.save
+        render json: planet, status: :created, serializer: Planets::ShowSerializer
       else
-        render json: @planet.errors, status: :unprocessable_entity
+        render json: planet.errors, status: :unprocessable_entity
       end
     end
 
@@ -25,7 +25,7 @@ module Api::V1
 
     def update
       if @planet.update(planet_params)
-        render json: @planet, serializer: Planets::ShowSerializer
+        render json: @planet, status: :ok, serializer: Planets::ShowSerializer
       else
         render json: @planet.errors, status: :unprocessable_entity
       end
@@ -34,7 +34,7 @@ module Api::V1
     def destroy
       @planet.destroy
 
-      head :no_content
+      render nothing: true, status: :no_content
     end
 
     private

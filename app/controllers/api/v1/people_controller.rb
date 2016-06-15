@@ -4,18 +4,18 @@ module Api::V1
     before_action :set_person, only: [:show, :update, :destroy]
 
     def index
-      @people = Person.all
+      people = Person.all
 
-      render json: @people, each_serializer: People::IndexSerializer
+      render json: people, each_serializer: People::IndexSerializer
     end
 
     def create
-      @person = Person.new(person_params)
+      person = Person.new(person_params)
 
       if @person.save
-        render json: @person, status: :created, serializer: People::ShowSerializer
+        render json: person, status: :created, serializer: People::ShowSerializer
       else
-        render json: @person.errors, status: :unprocessable_entity
+        render json: person.errors, status: :unprocessable_entity
       end
     end
 
@@ -25,7 +25,7 @@ module Api::V1
 
     def update
       if @person.update(person_params)
-        render json: @person, serializer: People::ShowSerializer
+        render json: @person, status: :ok, serializer: People::ShowSerializer
       else
         render json: @person.errors, status: :unprocessable_entity
       end
@@ -34,7 +34,7 @@ module Api::V1
     def destroy
       @person.destroy
 
-      head :no_content
+      render nothing: true, status: :no_content
     end
 
     private

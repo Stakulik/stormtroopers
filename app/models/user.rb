@@ -8,12 +8,13 @@ class User < ApplicationRecord
   validates :last_name, length: { in: 3..30 }
   validates :password, length: { in: 6..20}, on: :create
   validates :password, length: { in: 6..20}, on: :update, unless: :password_blank?
-
+  validates_presence_of :current_password, on: :update, unless: :reset_password?
   
   before_save do
     self.email = email.downcase
     self.first_name = first_name.capitalize
     self.last_name = last_name.capitalize
+    self.auth_token = "-"
   end
 
   has_secure_password
@@ -28,6 +29,10 @@ class User < ApplicationRecord
 
   def password_blank?
     password.blank? && password_confirmation.blank?
+  end
+
+  def reset_password?
+    self.reset_password_token
   end
 
 end

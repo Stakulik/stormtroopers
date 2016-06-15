@@ -16,7 +16,7 @@ Rails.application.routes.draw do
       post "/update_password", to: "users#update_password"
       delete "/destroy_account", to: "users#destroy"
 
-      resources :users]
+      resources :users
       resources :people
       resources :starships
       resources :planets
