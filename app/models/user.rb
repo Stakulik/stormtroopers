@@ -7,11 +7,13 @@ class User < ApplicationRecord
   validates :first_name, length: { in: 3..30 }
   validates :last_name, length: { in: 3..30 }
   validates :password, length: { in: 6..20}
+  validates_presence_of :current_password, on: :update
   
   before_save do
     self.email = email.downcase
     self.first_name = first_name.capitalize
     self.last_name = last_name.capitalize
+    self.auth_token = "-"
   end
 
   has_secure_password

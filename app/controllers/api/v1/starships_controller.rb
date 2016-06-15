@@ -4,18 +4,18 @@ module Api::V1
     before_action :set_starship, only: [:show, :update, :destroy]
 
     def index
-      @starship = Starship.all
+      starship = Starship.all
 
-      render json: @starship, each_serializer: Starships::IndexSerializer
+      render json: starship, each_serializer: Starships::IndexSerializer
     end
 
     def create
-      @starship = Starship.new(starship_params)
+      starship = Starship.new(starship_params)
 
       if @starship.save
-        render json: @starship, status: :created, serializer: Starships::ShowSerializer
+        render json: starship, status: :created, serializer: Starships::ShowSerializer
       else
-        render json: @starship.errors, status: :unprocessable_entity
+        render json: starship.errors, status: :unprocessable_entity
       end
     end
 
@@ -25,7 +25,7 @@ module Api::V1
 
     def update
       if @starship.update(starship_params)
-        render json: @starship, serializer: Starships::ShowSerializer
+        render json: @starship, status: :ok, serializer: Starships::ShowSerializer
       else
         render json: @starship.errors, status: :unprocessable_entity
       end
@@ -34,7 +34,7 @@ module Api::V1
     def destroy
       @starship.destroy
 
-      head :no_content
+      render nothing: true, status: :no_content
     end
 
     private

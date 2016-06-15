@@ -15,9 +15,10 @@ module Api::V1
       if user.save
         RegistrationMailer.confirmation_instructions(user).deliver_now
 
-        render json: { success: ["Please go to your inbox #{user.email} and confirm creating an account"] }
+        render json: { success: "Please go to your inbox #{user.email} and confirm creating an account" },
+          status: :created
       else
-        render json: { errors: [user.errors.messages] }
+        render json: { errors: user.errors }, status: :unprocessable_entity
       end
     end
 
@@ -26,21 +27,21 @@ module Api::V1
     # end
 
     def update
-      unless User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
-        return render json: { errors: ["Wrong current password"] }
-      end
+      # unless User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
+      #   return render json: { errors: ["Wrong current password"] }
+      # end
 
       if @current_user.update_attributes(user_params)
-        render json: { success: ["Updated successfully"] }
+        render json: { success: "Updated successfully" }, status: :ok
       else
-        render json: { errors: [@current_user.errors.messages] }
+        render json: { errors: @current_user.errors }, status: :unprocessable_entity
       end
     end
 
     def destroy
       @current_user.destroy
 
-      render json: { success: ["Your account has been successfully destroyed"] }
+      render json: { success: "Your account has been successfully destroyed" }, status: :ok
     end
 
     def confirmation
@@ -52,22 +53,22 @@ module Api::V1
 
           user.save(validate: false)
 
-          return render json: { success: ["Your account has been successfully confirmed"] }
+          return render json: { success: "Your account has been successfully confirmed" }, status: :ok
         end
       end
 
-      render json: { errors: ["Confirmation link is invalid."] }
+      render json: { errors: "Confirmation link is invalid" }, status: :bad_request
     end
 
     def resend_confirmation
       if @user&.confirmed_at
-        render json: { errors: ["Email was already confirmed, please try signing in"] }
+        render json: { errors: "Email was already confirmed, please try signing in" }, status: :forbidden
       elsif @user&.confirmation_token
         RegistrationMailer.confirmation_instructions(@user).deliver_now
 
-        render json: { success: ["We've send confirmation instructions onto #{@user.email}"] }
+        render json: { success: "We've send confirmation instructions onto #{@user.email}" }, status: :ok
       else
-        render json: { errors: ["Link is invalid"] }
+        render json: { errors: "Link is invalid" }, status: :bad_request
       end
     end
 
@@ -77,9 +78,9 @@ module Api::V1
 
         RegistrationMailer.reset_password_instructions(@user).deliver_now
 
-        render json: { success: ["We've send instructions onto #{@user.email}"] }
+        render json: { success: "We've send instructions onto #{@user.email}" }, status: :ok
       else
-        render json: { errors: ["Link is invalid"] }
+        render json: { errors: "Link is invalid" }, status: :bad_request
       end
     end
 
@@ -87,21 +88,21 @@ module Api::V1
       user = User.find_by(reset_password_token: params[:reset_password_token])
 
       if user
-        render json: { email: user.email }
+        render json: { email: user.email }, status: :ok
       else
-        render json: { errors: ["Link is invalid."] }
+        render json: { errors: "Link is invalid" }, status: :bad_request
       end
     end
 
     def update_password
       if !@user
-        render json: { errors: ["Link is invalid"] }
+        render json: { errors: "Link is invalid" }, status: :bad_request
       elsif @user&.update_attributes(user_params)
         @user.update_attribute(:reset_password_token, nil)
 
-        render json: { success: ["Updated successfully."] }
+        render json: { success: "Updated successfully" }, status: :ok
       else
-        render json: { errors: [@user.errors.messages] }
+        render json: { errors: @user.errors }, status: :unprocessable_entity
       end
     end
 
