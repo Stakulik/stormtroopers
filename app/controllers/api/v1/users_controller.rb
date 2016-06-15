@@ -2,7 +2,7 @@ module Api::V1
   class UsersController < ApplicationController
     before_action :authenticate_request!, only: [:show, :update, :destroy]
     before_action :add_confirmation_token, only: [:create]
-    before_action :get_user_by_email, only: [:resend_confirmation, :forgot_password, :update_password]
+    before_action :get_user_by_email, only: [:forgot_password, :update_password]
     before_action :check_user_confirmation, only: [:forgot_password, :update_password]
 
     def show
@@ -20,10 +20,6 @@ module Api::V1
         render json: { errors: [user.errors.messages] }
       end
     end
-
-    # def edit
-    #   render json: @current_user, serializer: Users::EditSerializer
-    # end
 
     def update
       unless User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
@@ -57,18 +53,6 @@ module Api::V1
       end
 
       render json: { errors: ["Confirmation link is invalid."] }
-    end
-
-    def resend_confirmation
-      if @user&.confirmed_at
-        render json: { errors: ["Email was already confirmed, please try signing in"] }
-      elsif @user&.confirmation_token
-        RegistrationMailer.confirmation_instructions(@user).deliver_now
-
-        render json: { success: ["We've send confirmation instructions onto #{@user.email}"] }
-      else
-        render json: { errors: ["Link is invalid"] }
-      end
     end
 
     def forgot_password
