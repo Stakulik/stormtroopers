@@ -119,7 +119,8 @@ describe "User:", type: :request do
       it "email successfully" do
         log_in(confirmed_user)
 
-        put v1_users_path(confirmed_user), { user: { email: "w@e", current_password: confirmed_user.password } }, headers_with_auth_token
+        put v1_users_path(confirmed_user), { user: { email: "w@e", current_password: confirmed_user.password } },
+          headers_with_auth_token
 
         expect(response.body).to include("errors")
 
@@ -127,8 +128,8 @@ describe "User:", type: :request do
 
         expect(response.body).to include("errors")
 
-        put v1_users_path(confirmed_user), { user: { email: "new@example.com", current_password: confirmed_user.password } },
-          headers_with_auth_token
+        put v1_users_path(confirmed_user),
+          { user: { email: "new@example.com", current_password: confirmed_user.password } }, headers_with_auth_token
 
         expect(response.body).to include("Your profile has been update successfully")
 
@@ -177,7 +178,8 @@ describe "User:", type: :request do
 
           expect(response.body).to include("errors")
 
-          put v1_users_path(confirmed_user), { user: { email: "new@example.com", current_password: confirmed_user.password } },
+          put v1_users_path(confirmed_user),
+            { user: { email: "new@example.com", current_password: confirmed_user.password } },
             { "HTTP_ACCEPT": "application/json" }
 
           expect(response.body).to include("Not Authenticated")
@@ -226,6 +228,10 @@ describe "User:", type: :request do
         post v1_forgot_password_path, {email: user.email}
 
         expect(response.body).to include("You have to confirm your email")
+
+        get v1_reset_password_path, {reset_password_token: nil}
+
+        expect(response.status).to eq(400)
 
         post v1_update_password_path, { user: { email: user.email, password: "newpassword",
           password_confirmation: "newpassword" } }

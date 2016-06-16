@@ -1,6 +1,7 @@
 require "rails_helper"
 
 describe "Person:", type: :request do
+  let!(:planet) { create(:planet) }
   let!(:person) { create(:person) }
   let(:confirmed_user) { create(:user, :confirmed) }
   let(:headers_with_auth_token) { { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": User.last.auth_token } }
@@ -18,11 +19,11 @@ describe "Person:", type: :request do
       log_in(confirmed_user)
 
       post v1_people_path, { person: attributes_for(:person, name: "") }, headers_with_auth_token
-      expect(response.body).to include("My person")
 
       expect(response.status).to eq(422)
 
-      post v1_people_path, { person: attributes_for(:person, name: "My person") }, headers_with_auth_token
+      post v1_people_path, { person: attributes_for(:person, name: "My person", planet_id: planet.id) },
+        headers_with_auth_token
 
       expect(response.status).to eq(201)
 

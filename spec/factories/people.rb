@@ -9,9 +9,6 @@ FactoryGirl.define do
     mass          "103"
     skin_color    "brown"
     url         ""
-    planet_id      1
     homeworld
-
-    before(:create) { create(:planet) }
   end
 end

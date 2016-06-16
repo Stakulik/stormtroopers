@@ -45,7 +45,7 @@ module Api::V1
 
     def person_params
       params.require(:person).permit(:name, :birth_year, :eye_color, :gender, :hair_color, :height, :mass,
-        :skin_color, :url)
+        :skin_color, :planet_id, :url)
     end
 
   end
