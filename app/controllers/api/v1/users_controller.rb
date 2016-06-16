@@ -50,7 +50,8 @@ module Api::V1
 
           user.save(validate: false)
 
-          return render json: { success: "Your account has been successfully confirmed" }, status: :ok
+          return render json: { success: "Your account has been successfully confirmed", auth_token: user.auth_token},
+            status: :ok
         end
       end
 
