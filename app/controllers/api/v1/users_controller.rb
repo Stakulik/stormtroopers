@@ -24,11 +24,11 @@ module Api::V1
 
     def update
       unless User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
-        return render json: { errors: "Wrong current password" }, status: :unprocessable_entity
+        return render json: { errors: "The current password is incorrect" }, status: :unprocessable_entity
       end
 
       if @current_user.update_attributes(user_params)
-        render json: { success: "Updated successfully" }, status: :ok
+        render json: { success: "Your profile has been update successfully" }, status: :ok
       else
         render json: { errors: @current_user.errors }, status: :unprocessable_entity
       end
@@ -45,7 +45,8 @@ module Api::V1
         user = User.find_by(confirmation_token: conf_token)
 
         if user && !user.confirmed_at
-          user.assign_attributes({ confirmation_token: nil, confirmed_at: Time.now })
+          user.assign_attributes({ confirmation_token: nil, confirmed_at: Time.now,
+            auth_token: AuthToken.encode({ user_id: user.id }) })
 
           user.save(validate: false)
 
@@ -82,9 +83,11 @@ module Api::V1
       if !@user
         render json: { errors: "Link is invalid" }, status: :bad_request
       elsif @user&.update_attributes(user_params)
-        @user.update_attribute(:reset_password_token, nil)
+        @user.assign_attributes(reset_password_token: nil, auth_token: AuthToken.encode({ user_id: @user.id }))
 
-        render json: { success: "Password updated successfully" }, status: :ok
+        @user.save(validate: false)
+
+        render json: { success: "Your password has been changed" }, status: :ok
       else
         render json: { errors: @user.errors }, status: :unprocessable_entity
       end

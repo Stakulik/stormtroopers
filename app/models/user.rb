@@ -9,8 +9,6 @@ class User < ApplicationRecord
   validates :password, length: { in: 6..20}, on: :create
   validates :password, length: { in: 6..20}, on: :update, unless: :password_blank?
   validates_presence_of :current_password, on: :update, unless: :reset_password?
-  
-  before_create { self.auth_token = "-" }
 
   before_save do
     self.email = email.downcase
