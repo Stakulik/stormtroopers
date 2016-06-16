@@ -5,7 +5,7 @@ FactoryGirl.define do
     last_name   "Doe"
     password    "qazwsx"
     password_confirmation "qazwsx"
-    auth_token  1
+    auth_token  nil
 
     trait :fan do
       email       "henry@example.com"

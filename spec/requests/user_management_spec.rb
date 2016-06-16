@@ -14,6 +14,10 @@ describe "User:", type: :request do
       get v1_confirmation_path(confirmation_token: User.last.confirmation_token)
 
       expect(response.body).to include("Your account has been successfully confirmed")
+
+      get v1_user_path(User.last), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": User.last.auth_token }
+
+      expect(response.body).to include(User.last.email)
     end
 
     it "unsuccessfully (sends invalid data and gets errors)" do
@@ -78,9 +82,14 @@ describe "User:", type: :request do
         expect(response.body).to include("errors")
 
         put v1_user_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
+          current_password: "wrongPassword" } }, headers_with_auth_token
+
+        expect(response.body).to include("errors")
+
+        put v1_user_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
           current_password: confirmed_user.password } }, headers_with_auth_token
 
-        expect(response.body).to include("success")
+        expect(response.body).to include("Your profile has been update successfully")
 
         get v1_user_path(confirmed_user), nil, headers_with_auth_token
 
@@ -98,7 +107,7 @@ describe "User:", type: :request do
         put v1_user_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword",
           current_password: confirmed_user.password } }, headers_with_auth_token
 
-        expect(response.body).to include("success")
+        expect(response.body).to include("Your profile has been update successfully")
 
         delete v1_logout_path, nil, headers_with_auth_token
 
@@ -121,7 +130,7 @@ describe "User:", type: :request do
         put v1_user_path(confirmed_user), { user: { email: "new@example.com", current_password: confirmed_user.password } },
           headers_with_auth_token
 
-        expect(response.body).to include("success")
+        expect(response.body).to include("Your profile has been update successfully")
 
         get v1_user_path(confirmed_user), nil, headers_with_auth_token
 
@@ -204,9 +213,11 @@ describe "User:", type: :request do
         post v1_update_password_path, { user: { email: confirmed_user.email, password: "newpassword",
           password_confirmation: "newpassword" } }
 
-        expect(response.body).to include("Password updated successfully")
+        expect(response.body).to include("Your password has been changed")
 
-        log_in(confirmed_user, nil, "newpassword")
+        get v1_user_path(User.last), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": User.last.auth_token }
+
+        expect(response.body).to include(User.last.email)
       end
     end
 
