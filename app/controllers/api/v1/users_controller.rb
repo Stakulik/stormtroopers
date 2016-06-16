@@ -69,7 +69,7 @@ module Api::V1
     end
 
     def reset_password
-      user = User.find_by(reset_password_token: params[:reset_password_token])
+      user = User.find_by(reset_password_token: params[:reset_password_token]) if params[:reset_password_token]
 
       if user
         render json: { email: user.email }, status: :ok
