@@ -88,7 +88,7 @@ module Api::V1
 
         @user.save(validate: false)
 
-        render json: { success: "Your password has been changed" }, status: :ok
+        render json: { success: "Your password has been changed", auth_token: @user.auth_token }, status: :ok
       else
         render json: { errors: @user.errors }, status: :unprocessable_entity
       end

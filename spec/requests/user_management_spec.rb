@@ -15,7 +15,7 @@ describe "User:", type: :request do
 
       expect(response.body).to include("Your account has been successfully confirmed")
 
-      get v1_user_path(User.last), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": User.last.auth_token }
+      get v1_users_path(User.last), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": User.last.auth_token }
 
       expect(response.body).to include(User.last.email)
     end
@@ -58,7 +58,7 @@ describe "User:", type: :request do
 
         expect(response.body).to include("That email/password combination is not valid")
 
-        get v1_user_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json" }
+        get v1_users_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json" }
 
         expect(response.body).to include("Not Authenticated")
       end
@@ -76,22 +76,22 @@ describe "User:", type: :request do
       it "first name and last name successfully" do
         log_in(confirmed_user)
 
-        put v1_user_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia" } },
+        put v1_users_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia" } },
           headers_with_auth_token
 
         expect(response.body).to include("errors")
 
-        put v1_user_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
+        put v1_users_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
           current_password: "wrongPassword" } }, headers_with_auth_token
 
         expect(response.body).to include("errors")
 
-        put v1_user_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
+        put v1_users_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
           current_password: confirmed_user.password } }, headers_with_auth_token
 
         expect(response.body).to include("Your profile has been update successfully")
 
-        get v1_user_path(confirmed_user), nil, headers_with_auth_token
+        get v1_users_path(confirmed_user), nil, headers_with_auth_token
 
         expect(response.body).to include("Francisco")
       end
@@ -99,12 +99,12 @@ describe "User:", type: :request do
       it "password successfully" do
         log_in(confirmed_user)
 
-        put v1_user_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword" } },
+        put v1_users_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword" } },
           headers_with_auth_token
 
         expect(response.body).to include("errors")
 
-        put v1_user_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword",
+        put v1_users_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword",
           current_password: confirmed_user.password } }, headers_with_auth_token
 
         expect(response.body).to include("Your profile has been update successfully")
@@ -119,20 +119,20 @@ describe "User:", type: :request do
       it "email successfully" do
         log_in(confirmed_user)
 
-        put v1_user_path(confirmed_user), { user: { email: "w@e", current_password: confirmed_user.password } }, headers_with_auth_token
+        put v1_users_path(confirmed_user), { user: { email: "w@e", current_password: confirmed_user.password } }, headers_with_auth_token
 
         expect(response.body).to include("errors")
 
-        put v1_user_path(confirmed_user), { user: { email: "new@example.com" } }, headers_with_auth_token
+        put v1_users_path(confirmed_user), { user: { email: "new@example.com" } }, headers_with_auth_token
 
         expect(response.body).to include("errors")
 
-        put v1_user_path(confirmed_user), { user: { email: "new@example.com", current_password: confirmed_user.password } },
+        put v1_users_path(confirmed_user), { user: { email: "new@example.com", current_password: confirmed_user.password } },
           headers_with_auth_token
 
         expect(response.body).to include("Your profile has been update successfully")
 
-        get v1_user_path(confirmed_user), nil, headers_with_auth_token
+        get v1_users_path(confirmed_user), nil, headers_with_auth_token
 
         expect(response.body).to include("new@example.com")
       end
@@ -155,7 +155,7 @@ describe "User:", type: :request do
 
           expect(response.body).to include("errors")
 
-          put v1_user_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
+          put v1_users_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
             current_password: confirmed_user.password } }, { "HTTP_ACCEPT": "application/json" }
 
           expect(response.body).to include("Not Authenticated")
@@ -166,7 +166,7 @@ describe "User:", type: :request do
 
           expect(response.body).to include("errors")
 
-          put v1_user_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword",
+          put v1_users_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword",
             current_password: confirmed_user.password } }, { "HTTP_ACCEPT": "application/json" }
 
           expect(response.body).to include("Not Authenticated")
@@ -177,7 +177,7 @@ describe "User:", type: :request do
 
           expect(response.body).to include("errors")
 
-          put v1_user_path(confirmed_user), { user: { email: "new@example.com", current_password: confirmed_user.password } },
+          put v1_users_path(confirmed_user), { user: { email: "new@example.com", current_password: confirmed_user.password } },
             { "HTTP_ACCEPT": "application/json" }
 
           expect(response.body).to include("Not Authenticated")
@@ -215,7 +215,7 @@ describe "User:", type: :request do
 
         expect(response.body).to include("Your password has been changed")
 
-        get v1_user_path(User.last), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": User.last.auth_token }
+        get v1_users_path(User.last), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": User.last.auth_token }
 
         expect(response.body).to include(User.last.email)
       end
