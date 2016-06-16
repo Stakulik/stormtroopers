@@ -12,7 +12,7 @@ module Api::V1
     def create
       starship = Starship.new(starship_params)
 
-      if @starship.save
+      if starship.save
         render json: starship, status: :created, serializer: Starships::ShowSerializer
       else
         render json: starship.errors, status: :unprocessable_entity

@@ -12,7 +12,7 @@ module Api::V1
 
         render json: authentication_payload(@user), status: :ok
       else
-        render json: { errors: "That email/password combination is not valid" }, status: :unauthorized
+        render json: { errors: "That email/password combination is not valid" }, status: :bad_request
       end
     end
 

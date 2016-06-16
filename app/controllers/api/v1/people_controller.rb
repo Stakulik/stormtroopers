@@ -12,7 +12,7 @@ module Api::V1
     def create
       person = Person.new(person_params)
 
-      if @person.save
+      if person.save
         render json: person, status: :created, serializer: People::ShowSerializer
       else
         render json: person.errors, status: :unprocessable_entity

@@ -26,7 +26,7 @@ protected
   # Call this from child controllers in a before_action or from
   # within the action method itself
   def authenticate_request!
-    @current_user = User.find_by(auth_token: request.headers["AUTHORIZATION"]) rescue nil
+    @current_user = User.find_by(auth_token: request.headers["AUTHORIZATION"]) if request.headers["AUTHORIZATION"]
 
     fail Exceptions::NotAuthenticatedError unless @current_user
   rescue JWT::ExpiredSignature

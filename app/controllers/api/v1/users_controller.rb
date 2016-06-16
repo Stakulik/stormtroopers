@@ -23,9 +23,9 @@ module Api::V1
     end
 
     def update
-      # unless User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
-      #   return render json: { errors: ["Wrong current password"] }
-      # end
+      unless User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
+        return render json: { errors: "Wrong current password" }, status: :unprocessable_entity
+      end
 
       if @current_user.update_attributes(user_params)
         render json: { success: "Updated successfully" }, status: :ok
