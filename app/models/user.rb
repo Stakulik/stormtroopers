@@ -2,6 +2,8 @@ class User < ApplicationRecord
 
   attr_accessor :current_password
 
+  has_many :auth_tokens, dependent: :destroy
+
   validates :email, uniqueness: { case_sensitive: false }, length: { in: 6..30 }, 
     format: { with: /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i }
   validates :first_name, length: { in: 3..30 }

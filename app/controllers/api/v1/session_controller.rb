@@ -8,16 +8,16 @@ module Api::V1
 
     def create
       if @user
-        @user.update_attribute(:auth_token, AuthToken.encode({ user_id: @user.id }))
+        auth_token = @user.auth_tokens.create(content: AuthToken.encode({ user_id: @user.id }))
 
-        render json: authentication_payload(@user), status: :ok
+        render json: authentication_payload(@user, auth_token&.content), status: :ok
       else
         render json: { errors: "That email/password combination is not valid" }, status: :bad_request
       end
     end
 
     def destroy
-      current_user.update_attribute(:auth_token, AuthToken.encode({ user_id: current_user.id }, 0))
+      AuthToken.find_by(content: @auth_token).destroy
 
       render json: { success: "Logged out successfully" }, status: :ok
     end
@@ -28,14 +28,13 @@ module Api::V1
       @user = User.find_by_credentials(params.dig(:user, :email), params.dig(:user, :password))
     end
 
-    def authentication_payload(user)
+    def authentication_payload(user, auth_token)
       return nil unless user && user.id
 
       {
-        auth_token: user.auth_token,
+        auth_token: auth_token,
         user: { id: user.id, email: user.email }
       }
     end
-    
   end
 end

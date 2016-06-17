@@ -45,13 +45,12 @@ module Api::V1
         user = User.find_by(confirmation_token: conf_token)
 
         if user && !user.confirmed_at
-          user.assign_attributes({ confirmation_token: nil, confirmed_at: Time.now,
-            auth_token: AuthToken.encode({ user_id: user.id }) })
+          user.assign_attributes({ confirmation_token: nil, confirmed_at: Time.now })
 
           user.save(validate: false)
 
-          return render json: { success: "Your account has been successfully confirmed", auth_token: user.auth_token},
-            status: :ok
+          return render json: { success: "Your account has been successfully confirmed",
+            auth_token: user.auth_tokens.create(content: AuthToken.encode({ user_id: user.id }))}, status: :ok
         end
       end
 
@@ -81,14 +80,15 @@ module Api::V1
     end
 
     def update_password
+      user_params[:reset_password_token] = nil
+
       if !@user
         render json: { errors: "Link is invalid" }, status: :bad_request
       elsif @user&.update_attributes(user_params)
-        @user.assign_attributes(reset_password_token: nil, auth_token: AuthToken.encode({ user_id: @user.id }))
+        AuthToken.where(user_id: @user).destroy_all
 
-        @user.save(validate: false)
-
-        render json: { success: "Your password has been changed", auth_token: @user.auth_token }, status: :ok
+        render json: { success: "Your password has been changed",
+          auth_token: @user.auth_tokens.create(content: AuthToken.encode({ user_id: @user.id })) }, status: :ok
       else
         render json: { errors: @user.errors }, status: :unprocessable_entity
       end

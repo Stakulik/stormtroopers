@@ -20,10 +20,10 @@ class ApplicationController < ActionController::API
     head status: 200, "Access-Control-Allow-Headers": "accept, content-type"                                                                                                                                                                                                         
   end
 
-protected
+  protected
 
   def authenticate_request!
-    @current_user = User.find_by(auth_token: @auth_token) if get_auth_token
+    @current_user = AuthToken.find_by(content: @auth_token)&.user if get_auth_token
 
       fail Exceptions::NotAuthenticatedError unless @current_user
     rescue JWT::ExpiredSignature
@@ -34,19 +34,9 @@ protected
 
   private
 
-  # def user_id_included_in_auth_token?
-  #   http_auth_token && decoded_auth_token && decoded_auth_token[:user_id]
-  # end
-
   def decoded_auth_token
     @decoded_auth_token ||= AuthToken.decode(@auth_token)
   end
-
-  # def http_auth_token
-  #   @http_auth_token ||= if request.headers["Authorization"].present?
-  #                          request.headers["Authorization"].split(" ").last
-  #                     end
-  # end
 
   def get_auth_token
     @auth_token = request.headers["AUTHORIZATION"]
