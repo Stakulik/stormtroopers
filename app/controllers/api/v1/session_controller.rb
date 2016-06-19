@@ -8,7 +8,7 @@ module Api::V1
 
     def create
       if @user
-        auth_token = @user.auth_tokens.create(content: AuthToken.encode({ user_id: @user.id }))
+        auth_token = @user.auth_tokens.create(content: AuthToken.encode({ user_id: @user.id, ip: request.remote_ip }))
 
         render json: authentication_payload(@user, auth_token&.content), status: :ok
       else

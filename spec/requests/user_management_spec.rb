@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe "User:", type: :request do
+describe "User", type: :request do
   let(:user) { create(:user) }
   let(:confirmed_user) { create(:user, :confirmed) }
   let(:headers) { { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": AuthToken.last&.content } }

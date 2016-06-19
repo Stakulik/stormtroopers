@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :auth_token do
     content     "adzgsdzogv"
-    expired_at  Time.now + 1.day
+    expired_at  nil
     user
   end
 end

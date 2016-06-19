@@ -50,7 +50,7 @@ module Api::V1
           user.save(validate: false)
 
           return render json: { success: "Your account has been successfully confirmed",
-            auth_token: user.auth_tokens.create(content: AuthToken.encode({ user_id: user.id }))}, status: :ok
+            auth_token: user.auth_tokens.create(content: AuthToken.encode({ user_id: user.id, ip: request.remote_ip })) }, status: :ok
         end
       end
 
@@ -88,7 +88,7 @@ module Api::V1
         AuthToken.where(user_id: @user).destroy_all
 
         render json: { success: "Your password has been changed",
-          auth_token: @user.auth_tokens.create(content: AuthToken.encode({ user_id: @user.id })) }, status: :ok
+          auth_token: @user.auth_tokens.create(content: AuthToken.encode({ user_id: @user.id, ip: request.remote_ip })) }, status: :ok
       else
         render json: { errors: @user.errors }, status: :unprocessable_entity
       end
@@ -97,7 +97,7 @@ module Api::V1
     private
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation, :auth_token,
+      params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation,
         :confirmation_token, :confirmed_at, :current_password)
     end
 
