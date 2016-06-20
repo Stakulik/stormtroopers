@@ -1,7 +1,6 @@
 FactoryGirl.define do
   factory :auth_token do
-    content     "adzgsdzogv"
-    expired_at  nil
+    content     AuthToken.encode({ user_id: 1 })
     user
   end
 end

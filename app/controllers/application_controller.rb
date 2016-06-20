@@ -25,7 +25,7 @@ class ApplicationController < ActionController::API
   def authenticate_request!
     fail Exceptions::NotAuthenticatedError unless get_auth_token && decoded_auth_token[:ip] && find_current_user
 
-    check_clients_ip if 2 == rand(3)
+    # check_clients_ip if 2 == rand(3)
 
     rescue JWT::ExpiredSignature
       raise Exceptions::AuthenticationTimeoutError

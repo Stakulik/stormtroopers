@@ -4,6 +4,7 @@ module Api::V1
     before_action :add_confirmation_token, only: [:create]
     before_action :get_user_by_email, only: [:forgot_password, :update_password]
     before_action :check_user_confirmation, only: [:forgot_password, :update_password]
+    before_action :check_expiration, only: [:reset_password]
 
     def show
       render json: @current_user, serializer: Users::ShowSerializer
@@ -60,7 +61,7 @@ module Api::V1
 
     def forgot_password
       if @user
-        @user.update_attribute(:reset_password_token, generate_token)
+        @user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: @user.id }, 120 ))
 
         RegistrationMailer.reset_password_instructions(@user).deliver_now
 
@@ -71,7 +72,7 @@ module Api::V1
     end
 
     def reset_password
-      user = User.find_by(reset_password_token: params[:reset_password_token]) if params[:reset_password_token]
+      user = User.find_by(reset_password_token: params[:reset_password_token])
 
       if user
         render json: { email: user.email }, status: :ok
@@ -115,5 +116,13 @@ module Api::V1
       SecureRandom.hex
     end
 
+    def check_expiration
+      AuthToken.decode(params[:reset_password_token])
+
+      rescue JWT::ExpiredSignature
+        raise Exceptions::AuthenticationTimeoutError
+      rescue  JWT::DecodeError
+        raise Exceptions::NotAuthenticatedError
+    end
   end
 end

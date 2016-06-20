@@ -7,11 +7,11 @@ describe "User forgots password", type: :request do
 
   context "with a confirmed account" do
     it "successfully" do
-      post v1_forgot_password_path, {email: confirmed_user.email}
+      post v1_forgot_password_path, { email: confirmed_user.email }
 
       expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
 
-      get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
+      get v1_reset_password_path, { reset_password_token: User.last.reset_password_token }
 
       expect(response.body).to include(confirmed_user.email)
 
@@ -82,12 +82,42 @@ describe "User forgots password", type: :request do
 
       get v1_reset_password_path, {reset_password_token: nil}
 
-      expect(response.body).to include("Link is invalid")
+      expect(response.body).to include("Not Authenticated")
 
       post v1_update_password_path, { user: { email: user.email, password: "newpassword",
         password_confirmation: "newpassword" } }
 
       expect(response.body).to include("You have to confirm your email")
+    end
+  end
+
+  context "and clicks on a reset token link:" do
+    it "the link's expired before a click - gets a time out error" do
+      post v1_forgot_password_path, { email: confirmed_user.email }
+
+      expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
+
+      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 0 ))
+
+      sleep(1)
+
+      get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
+
+      expect(response.body).to include("Authentication Timeout")
+    end
+
+    it "the link hasn't expired before a click" do
+      post v1_forgot_password_path, { email: confirmed_user.email }
+
+      expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
+
+      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }))
+
+      sleep(1)
+
+      get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
+
+      expect(response.body).to include(confirmed_user.email)
     end
   end
 end
