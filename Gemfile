@@ -25,6 +25,7 @@ group :development, :test do
   gem 'factory_girl_rails'
   gem 'rspec-rails'
   gem 'shoulda-matchers'
+  gem 'timecop', '~> 0.8.1'
 end
 
 group :development do

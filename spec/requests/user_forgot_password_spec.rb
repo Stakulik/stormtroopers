@@ -35,13 +35,13 @@ describe "User forgots password", type: :request do
 
       first_token = AuthToken.where(user_id: confirmed_user).last.content
 
-      sleep(1)
+      Timecop.travel(Time.now + 10.minutes)
 
       log_in(confirmed_user)
 
       second_token = AuthToken.where(user_id: confirmed_user).last.content
 
-      sleep(1)
+      Timecop.travel(Time.now + 10.minutes)
 
       log_in(confirmed_user)
 
@@ -97,9 +97,9 @@ describe "User forgots password", type: :request do
 
       expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
 
-      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 0 ))
+      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 120 ))
 
-      sleep(1)
+      Timecop.travel(Time.now + 121.minutes)
 
       get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
 
@@ -113,7 +113,7 @@ describe "User forgots password", type: :request do
 
       confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }))
 
-      sleep(1)
+      Timecop.travel(Time.now + 119.minutes)
 
       get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
 

@@ -28,8 +28,8 @@ describe "User", type: :request do
 
         first_token = AuthToken.where(user_id: confirmed_user).last.content
 
-        sleep(1)
-
+        Timecop.travel(Time.now + 10.minutes)
+        
         log_in(confirmed_user)
 
         second_token = AuthToken.where(user_id: confirmed_user).last.content
