@@ -28,18 +28,6 @@ describe "User", type: :request do
   end
 
   context "authenticated" do
-    describe "with wrong ip address" do
-      it "gets errors" do
-        log_in(confirmed_user)
-
-        AuthToken.last.update_attribute(:content, AuthToken.encode({ user_id: confirmed_user.id, ip: "192.168.1.1" }))
-
-        get v1_users_path(confirmed_user), nil, headers
-
-        expect(response.body).to include("Not Authenticated")
-      end
-    end
-
     describe "updates account's" do
       it "first name and last name successfully" do
         log_in(confirmed_user)

@@ -10,6 +10,7 @@ class ApplicationController < ActionController::API
   attr_reader :current_user
 
   before_action :add_allow_credentials_headers
+  after_action :prolong_token, if: -> (){ @auth_token }
   
   def add_allow_credentials_headers
     response.headers["Access-Control-Allow-Origin"] = request.headers["Origin"] || "*"
@@ -23,17 +24,24 @@ class ApplicationController < ActionController::API
   protected
 
   def authenticate_request!
-    fail Exceptions::NotAuthenticatedError unless get_auth_token && decoded_auth_token[:ip] && find_current_user
-
-    # check_clients_ip if 2 == rand(3)
+    fail Exceptions::NotAuthenticatedError unless get_auth_token && find_current_user && decoded_auth_token[:ip]
 
     rescue JWT::ExpiredSignature
       raise Exceptions::AuthenticationTimeoutError
-    rescue Exceptions::WrongClientsIpError, JWT::VerificationError, JWT::DecodeError
+    rescue JWT::VerificationError, JWT::DecodeError
       raise Exceptions::NotAuthenticatedError
   end
 
   private
+
+  def prolong_token
+    if Time.at(@decoded_auth_token[:exp]).today? && check_clients_ip
+      new_auth_token = @current_user.auth_tokens.create(content: AuthToken.encode({ user_id: @current_user.id,
+        ip: request.remote_ip }))&.content
+
+      response.set_header("X-APP-TOKEN", new_auth_token)
+    end
+  end
 
   def get_auth_token
     @auth_token = request.headers["AUTHORIZATION"]
@@ -51,10 +59,6 @@ class ApplicationController < ActionController::API
     render json: { errors: "Authentication Timeout" }, status: 419
   end
 
-  def forbidden_resource
-    render json: { errors: "Not Authorized To Access Resource" }, status: :forbidden
-  end
-
   def user_not_authenticated
     render json: { errors: "Not Authenticated" }, status: :unauthorized
   end
@@ -64,7 +68,13 @@ class ApplicationController < ActionController::API
   end
 
   def check_clients_ip
-    raise Exceptions::WrongClientsIpError unless @decoded_auth_token[:ip] == request.remote_ip
+    if @decoded_auth_token[:ip] == request.remote_ip
+      true
+    else
+      AuthToken.find_by(content: @auth_token).destroy
+
+      false
+    end
   end
 
   def record_not_found

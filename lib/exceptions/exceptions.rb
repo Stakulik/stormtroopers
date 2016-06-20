@@ -7,7 +7,4 @@ module Exceptions
   
   class AuthenticationTimeoutError < StandardError
   end
-
-  class WrongClientsIpError < StandardError
-  end
 end

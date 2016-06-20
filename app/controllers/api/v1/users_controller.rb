@@ -121,7 +121,7 @@ module Api::V1
 
       rescue JWT::ExpiredSignature
         raise Exceptions::AuthenticationTimeoutError
-      rescue  JWT::DecodeError
+      rescue  JWT::VerificationError, JWT::DecodeError
         raise Exceptions::NotAuthenticatedError
     end
   end
