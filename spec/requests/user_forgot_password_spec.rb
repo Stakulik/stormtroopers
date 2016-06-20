@@ -97,7 +97,7 @@ describe "User forgots password", type: :request do
 
       expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
 
-      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 120 ))
+      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 120))
 
       Timecop.travel(Time.now + 121.minutes)
 
@@ -111,7 +111,7 @@ describe "User forgots password", type: :request do
 
       expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
 
-      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }))
+      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 120))
 
       Timecop.travel(Time.now + 119.minutes)
 
