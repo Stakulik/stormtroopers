@@ -1,6 +1,6 @@
 module Api::V1
   class PlanetsController < ApplicationController
-    # before_action :authenticate_request!#, only: [:create, :update, :destroy]
+    before_action :authenticate_request!
     before_action :set_planet, only: [:show, :update, :destroy]
 
     def index
