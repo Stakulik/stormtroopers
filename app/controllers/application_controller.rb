@@ -10,18 +10,13 @@ class ApplicationController < ActionController::API
   attr_reader :current_user
 
   before_action :add_allow_credentials_headers
-  after_action :prolong_token, if: -> (){ @auth_token }
-  
-  def add_allow_credentials_headers
-    response.headers["Access-Control-Allow-Origin"] = request.headers["Origin"] || "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
-  end
+  after_action :prolong_token, if: -> () { @auth_token }
 
   def options
     head status: 200, "Access-Control-Allow-Headers": "accept, content-type"
   end
 
-  protected
+  private
 
   def authenticate_request!
     fail Exceptions::NotAuthenticatedError unless get_auth_token && find_current_user && decoded_auth_token[:ip]
@@ -32,7 +27,10 @@ class ApplicationController < ActionController::API
       raise Exceptions::NotAuthenticatedError
   end
 
-  private
+  def add_allow_credentials_headers
+    response.headers["Access-Control-Allow-Origin"] = request.headers["Origin"] || "*"
+    # response.headers["Access-Control-Allow-Credentials"] = "true"
+  end
 
   def prolong_token
     if Time.at(@decoded_auth_token[:exp]).today? && check_clients_ip
@@ -47,12 +45,22 @@ class ApplicationController < ActionController::API
     @auth_token = request.headers["AUTHORIZATION"]
   end
 
+  def find_current_user
+    @current_user = AuthToken.find_by(content: @auth_token)&.user
+  end
+
   def decoded_auth_token
     @decoded_auth_token ||= AuthToken.decode(@auth_token)
   end
 
-  def find_current_user
-    @current_user = AuthToken.find_by(content: @auth_token)&.user
+  def check_clients_ip
+    if @decoded_auth_token[:ip] == request.remote_ip
+      true
+    else
+      AuthToken.find_by(content: @auth_token).destroy
+
+      false
+    end
   end
 
   def authentication_timeout
@@ -65,16 +73,6 @@ class ApplicationController < ActionController::API
 
   def check_user_confirmation
     render json: { errors: "You have to confirm your email" }, status: :forbidden if @user && !@user.confirmed_at
-  end
-
-  def check_clients_ip
-    if @decoded_auth_token[:ip] == request.remote_ip
-      true
-    else
-      AuthToken.find_by(content: @auth_token).destroy
-
-      false
-    end
   end
 
   def record_not_found
