@@ -12,13 +12,13 @@ class User < ApplicationRecord
   validates :password, length: { in: 6..20}, on: :update, unless: :password_blank?
   validates_presence_of :current_password, on: :update, unless: :reset_password?
 
+  has_secure_password
+
   before_save do
     self.email = email.downcase
     self.first_name = first_name.capitalize
     self.last_name = last_name.capitalize
   end
-
-  has_secure_password
 
   def self.find_by_credentials(email, password)
     return nil unless email && password

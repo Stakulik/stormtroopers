@@ -96,7 +96,7 @@ describe "User", type: :request do
 
         old_auth_token = AuthToken.last&.content
 
-        Timecop.travel(Time.now + 71.hours)
+        Timecop.travel(Time.now + 61.hours)
 
         get v1_users_path(confirmed_user), nil, headers
 
@@ -114,7 +114,7 @@ describe "User", type: :request do
 
         expect(response.body).to include(User.last.email)
 
-        Timecop.travel(Time.now + 71.hours)
+        Timecop.travel(Time.now + 61.hours)
 
         get v1_users_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": new_auth_token }
 
@@ -126,7 +126,7 @@ describe "User", type: :request do
 
         AuthToken.last&.update_attribute(:content, AuthToken.encode({ user_id: confirmed_user.id, ip: "192.168.1.1" }))
 
-        Timecop.travel(Time.now + 71.hours)
+        Timecop.travel(Time.now + 61.hours)
 
         get v1_users_path(confirmed_user), nil, headers
 

@@ -33,7 +33,7 @@ class ApplicationController < ActionController::API
   end
 
   def prolong_token
-    if Time.at(@decoded_auth_token[:exp]).today? && check_clients_ip
+    if (@decoded_auth_token[:exp] - Time.now.to_i < 12.hours.to_i) && check_clients_ip
       new_auth_token = @current_user.auth_tokens.create(content: AuthToken.encode({ user_id: @current_user.id,
         ip: request.remote_ip }))&.content
 
