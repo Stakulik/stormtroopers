@@ -9,6 +9,8 @@ describe "User forgots password", type: :request do
     it "is succeeded" do
       post v1_forgot_password_path, { email: confirmed_user.email }
 
+      old_token = AuthToken.last&.content
+
       expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
 
       get v1_reset_password_path, { reset_password_token: User.last.reset_password_token }
@@ -28,6 +30,10 @@ describe "User forgots password", type: :request do
       get v1_users_path(User.last), nil, headers
 
       expect(response.body).to include(User.last.email)
+
+      get v1_users_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": old_token }
+
+      expect(response.body).to include("Not Authenticated")
     end
 
     it "after a reset all previous auth tokens are destroyed" do

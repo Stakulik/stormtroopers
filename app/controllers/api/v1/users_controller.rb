@@ -1,10 +1,9 @@
 module Api::V1
   class UsersController < ApplicationController
     before_action :authenticate_request!, only: [:show, :update, :destroy]
-    before_action :add_confirmation_token, only: [:create]
     before_action :get_user_by_email, only: [:forgot_password, :update_password]
     before_action :check_user_confirmation, only: [:forgot_password, :update_password]
-    before_action :check_expiration, only: [:reset_password]
+    before_action :check_expiration, only: [:confirmation, :reset_password]
 
     def show
       render json: @current_user, serializer: Users::ShowSerializer
@@ -12,6 +11,8 @@ module Api::V1
 
     def create
       user = User.new(user_params)
+
+      user.confirmation_token = AuthToken.encode({ }, 1440)
 
       if user.save
         RegistrationMailer.confirmation_instructions(user).deliver_now
@@ -59,7 +60,7 @@ module Api::V1
 
     def forgot_password
       if @user
-        @user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: @user.id }, 120 ))
+        @user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: @user.id }, 120))
 
         RegistrationMailer.reset_password_instructions(@user).deliver_now
 
@@ -102,20 +103,12 @@ module Api::V1
         :confirmation_token, :confirmed_at, :current_password)
     end
 
-    def add_confirmation_token
-      params[:user][:confirmation_token] = generate_token
-    end
-
     def get_user_by_email
       @user = User.find_by(email: params[:email] || user_params[:email]) rescue nil
     end
 
-    def generate_token
-      SecureRandom.hex
-    end
-
     def check_expiration
-      AuthToken.decode(params[:reset_password_token])
+      AuthToken.decode(params[:reset_password_token] || params[:confirmation_token])
 
       rescue JWT::ExpiredSignature
         raise Exceptions::AuthenticationTimeoutError

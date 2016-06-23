@@ -25,6 +25,24 @@ describe "User", type: :request do
 
       expect(response.body).to include( "errors")
     end
+
+    it "a confirmation link expires after 24 hours" do
+      post v1_signup_path, user: attributes_for(:user)
+
+      expect(response.body).to include("Please go to your inbox #{User.last.email} and confirm creating an account")
+
+      Timecop.travel(Time.now + 25.hours)
+
+      get v1_confirmation_path(confirmation_token: User.last.confirmation_token)
+
+      expect(response.body).to include("Authentication Timeout")
+
+      Timecop.travel(Time.now - 70.minutes)
+
+      get v1_confirmation_path(confirmation_token: User.last.confirmation_token)
+
+      expect(response.body).to include("Your account has been successfully confirmed")
+    end
   end
 
   context "authenticated" do
