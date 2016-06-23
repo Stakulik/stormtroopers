@@ -1,6 +1,6 @@
 require "rails_helper"
 
-describe "Person:", type: :request do
+describe "Person", type: :request do
   let!(:planet) { create(:planet) }
   let!(:person) { create(:person) }
   let(:confirmed_user) { create(:user, :confirmed) }

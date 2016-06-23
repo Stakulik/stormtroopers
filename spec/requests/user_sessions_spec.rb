@@ -50,7 +50,7 @@ describe "User", type: :request do
       end
     end
 
-    it "gets errors due to invalid data when tries to log in" do
+    it "gets errors (invalid data for login)" do
       post v1_login_path, { user: { email: confirmed_user.email, password: "wrongPassword" } }
 
       expect(response.body).to include("That email/password combination is not valid")
@@ -62,7 +62,7 @@ describe "User", type: :request do
   end
 
   context "with an unconfirmed account" do
-    it "gets a message to confirm email when tries to log in" do
+    it "gets a message to confirm email on login" do
       post v1_login_path, { user: { email: user.email, password: user.password } }
 
       expect(response.body).to include("You have to confirm your email")
@@ -74,7 +74,7 @@ describe "User", type: :request do
   end
 
   context "without an account" do
-    it "gets errors when tries to log in" do
+    it "gets errors on login" do
       post v1_login_path, { user: { email: "wrong@email.com", password: "wrongPassword" } }
 
       expect(response.body).to include("That email/password combination is not valid")
@@ -121,7 +121,7 @@ describe "User", type: :request do
         expect(response.body).to include(User.last.email)
       end
 
-      it "but a client gets errors because ip-addresses don't match" do
+      it "but a client gets errors (ip-addresses don't match)" do
         log_in(confirmed_user)
 
         AuthToken.last&.update_attribute(:content, AuthToken.encode({ user_id: confirmed_user.id, ip: "192.168.1.1" }))

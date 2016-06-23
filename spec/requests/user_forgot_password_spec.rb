@@ -6,7 +6,7 @@ describe "User forgots password", type: :request do
   let(:headers) { { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": AuthToken.last&.content } }
 
   context "with a confirmed account" do
-    it "successfully" do
+    it "is succeeded" do
       post v1_forgot_password_path, { email: confirmed_user.email }
 
       expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
@@ -30,7 +30,7 @@ describe "User forgots password", type: :request do
       expect(response.body).to include(User.last.email)
     end
 
-    it "destroying other previous auth tokens" do
+    it "after a reset all previous auth tokens are destroyed" do
       log_in(confirmed_user)
 
       first_token = AuthToken.where(user_id: confirmed_user).last.content
@@ -92,32 +92,36 @@ describe "User forgots password", type: :request do
   end
 
   context "and clicks on a reset token link:" do
-    it "the link's expired before a click - gets a time out error" do
-      post v1_forgot_password_path, { email: confirmed_user.email }
+    context "the link's expired before a click" do
+      it "- gets a time out error" do
+        post v1_forgot_password_path, { email: confirmed_user.email }
 
-      expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
+        expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
 
-      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 120))
+        confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 120))
 
-      Timecop.travel(Time.now + 121.minutes)
+        Timecop.travel(Time.now + 121.minutes)
 
-      get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
+        get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
 
       expect(response.body).to include("Authentication Timeout")
+      end
     end
 
-    it "the link hasn't expired before a click" do
-      post v1_forgot_password_path, { email: confirmed_user.email }
+    context "the link hasn't expired before a click" do
+      it "- gets a success message" do
+        post v1_forgot_password_path, { email: confirmed_user.email }
 
-      expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
+        expect(response.body).to include("We've send instructions onto #{confirmed_user.email}")
 
-      confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 120))
+        confirmed_user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: confirmed_user.id }, 120))
 
-      Timecop.travel(Time.now + 119.minutes)
+        Timecop.travel(Time.now + 119.minutes)
 
-      get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
+        get v1_reset_password_path, {reset_password_token: User.last.reset_password_token}
 
-      expect(response.body).to include(confirmed_user.email)
+        expect(response.body).to include(confirmed_user.email)
+      end
     end
   end
 end
