@@ -7,3 +7,4 @@ if defined?(RSpec)
 end
 
 task spec: :factory_specs
+task default: :spec
