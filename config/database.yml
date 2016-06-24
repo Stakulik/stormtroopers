@@ -2,8 +2,8 @@ default: &default
   adapter: postgresql
   pool: 5
   host: localhost
-  username: stakulik
-  password: "qazwsx"
+  username: <%= ENV["PG_USER_NAME"] || "postgres" %>
+  password: <%= ENV["PG_PASSWORD"] || "" %>
 
 development:
   <<: *default
@@ -12,7 +12,3 @@ development:
 test:
   <<: *default
   database: stormtroopers_test
-
-production:
-  <<: *default
-  database: stormtroopers_production
