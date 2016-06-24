@@ -8,3 +8,7 @@ services:
 
 before_script:
   - psql -c "create database stormtroopers_test;" -U postgres
+
+addons:
+  code_climate:
+    repo_token: 051b08362ed72af06acd6c88aed3e80ec8fb3a1fb2e51a68374d4b0633681184
