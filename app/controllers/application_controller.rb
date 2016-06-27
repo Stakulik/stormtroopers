@@ -13,7 +13,7 @@ class ApplicationController < ActionController::API
   after_action :prolong_token, if: -> () { @auth_token }
 
   def options
-    head status: 200, "Access-Control-Allow-Headers": "accept, content-type"
+    head status: 200, "Access-Control-Allow-Headers": "authorization, accept, content-type"
   end
 
   private
