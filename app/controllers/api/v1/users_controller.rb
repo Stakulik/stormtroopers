@@ -47,7 +47,9 @@ module Api::V1
         user = User.find_by(confirmation_token: conf_token)
 
         if user && !user.confirmed_at
-          user.update_attributes({ confirmation_token: nil, confirmed_at: Time.now })
+          user.assign_attributes({ confirmation_token: nil, confirmed_at: Time.now })
+
+          user.save(validate: false)
 
           return render json: { success: "Your account has been successfully confirmed",
             auth_token: user.auth_tokens.create(content: AuthToken.encode({ user_id: user.id, ip: request.remote_ip })) },
