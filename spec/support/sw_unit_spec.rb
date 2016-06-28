@@ -22,7 +22,7 @@ RSpec.shared_examples "sw unit" do |unit_type|
 
       expect(response.status).to eq(422)
 
-      post "#{units_path}", { "#{unit_type}": attributes_for(unit_type, name: "My #{unit_type}", planet_id: planet&.id) },
+      post "#{units_path}", { "#{unit_type}": attributes_for(unit_type, name: "My #{unit_type}", planet_id: planet.id) },
         headers
 
       expect(response.status).to eq(201)

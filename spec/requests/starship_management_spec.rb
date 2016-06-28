@@ -1,5 +1,5 @@
 require "rails_helper"
 
-describe "Starship:", type: :request do
-  it_behaves_like "sw unit", :starship
+describe "Starship", type: :request do
+  include_examples "sw unit", :starship
 end

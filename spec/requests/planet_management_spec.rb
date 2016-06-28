@@ -1,5 +1,5 @@
 require "rails_helper"
 
-describe "Planet:", type: :request do
-  it_behaves_like "sw unit", :planet
+describe "Planet", type: :request do
+  include_examples "sw unit", :planet
 end
