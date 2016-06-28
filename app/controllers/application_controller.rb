@@ -29,7 +29,7 @@ class ApplicationController < ActionController::API
 
   def add_allow_credentials_headers
     response.headers["Access-Control-Allow-Origin"] = request.headers["Origin"] || "*"
-    response.headers["Access-Control-Allow-Methods"] = "post, put, delete"
+    response.headers["Access-Control-Allow-Methods"] = "HEAD, GET, POST, PUT, DELETE"
   end
 
   def prolong_token
