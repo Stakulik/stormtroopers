@@ -1,0 +1,7 @@
+test:
+  adapter: postgresql
+  pool: 5
+  host: localhost
+  username: "postgres"
+  password: ""
+  database: stormtroopers_test
