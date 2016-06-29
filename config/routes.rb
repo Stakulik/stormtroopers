@@ -6,8 +6,8 @@ Rails.application.routes.draw do
 
   scope module: "api" do
     namespace :v1 do
-      post "/login", to: "session#create"
-      delete "/logout", to: "session#destroy"
+      post "/login", to: "sessions#create"
+      delete "/logout", to: "sessions#destroy"
 
       post "/signup", to: "users#create"
       get "/confirmation", to: "users#confirmation"

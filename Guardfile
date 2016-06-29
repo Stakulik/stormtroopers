@@ -33,7 +33,6 @@ guard :rspec, cmd: "zeus rspec" do
   watch(rails.app_controller)  { "spec/requests" }
   watch(%r{^app/controllers/api/v1/(.+)_(controller)\.rb$}) { |m| "spec/requests/#{m[1]}_management_spec.rb" }
   watch("app/controllers/api/v1/people_controller.rb")  { "spec/requests/person_management_spec.rb" }
-  watch("app/controllers/api/v1/session_controller.rb") { "spec/requests/user_sessions_spec.rb" } # переименовать
   watch("app/controllers/api/v1/users_controller.rb") do |m|
     [
       rspec.spec.call("requests/user_management"),
