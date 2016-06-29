@@ -18,7 +18,7 @@ guard :rspec, cmd: "bundle exec rspec" do
   watch(rspec.spec_helper) { rspec.spec_dir }
   watch("spec/rails_helper") { rspec.spec_dir }
   watch(rspec.spec_support) { "spec/requests" }
-  watch(rspec.spec_files) { rspec.spec_dir }
+  # watch(rspec.spec_files) { rspec.spec_dir }
 
   # Ruby files
   ruby = dsl.ruby
@@ -39,6 +39,9 @@ guard :rspec, cmd: "bundle exec rspec" do
       rspec.spec.call("requests/user_forgot_password")
     ]
   end
+
+  watch(%r{^spec/factories/(.+)\.rb$}) { |m| "spec/models/#{m[1][0..-2]}_spec.rb" }
+  watch(%r{^spec/factories/people.rb$}) { |m| "spec/models/person_spec.rb" }
 
   # Rails config changes
   watch(rails.routes)          { "#{rspec.spec_dir}/requests" }
