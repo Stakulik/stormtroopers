@@ -1,5 +1,5 @@
 module Api::V1
-  class SessionController < ApplicationController
+  class SessionsController < ApplicationController
     require "auth_token"
 
     before_action :authenticate_request!, only: [:destroy]
