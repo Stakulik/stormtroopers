@@ -26,6 +26,8 @@ group :development, :test do
   gem 'rspec-rails'
   gem 'shoulda-matchers'
   gem 'timecop', '~> 0.8.1'
+  gem 'guard-bundler', require: false
+  gem 'guard-rspec', require: false
 end
 
 group :development do
