@@ -28,6 +28,11 @@ group :development, :test do
   gem 'timecop', '~> 0.8.1'
   gem 'guard-bundler', require: false
   gem 'guard-rspec', require: false
+  gem 'guard-zeus', require: false
+  gem 'guard-rails', require: false
+  gem 'guard-migrate', require: false
+  gem 'guard-rubocop', require: false
+  gem 'rubocop', require: false
 end
 
 group :development do
