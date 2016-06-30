@@ -51,7 +51,7 @@ module Api::V1
 
           user.save(validate: false)
 
-          return render json: { success: "Your account has been successfully confirmed",
+          return render json: { success: "Thanks for signing up for Stormtroopers application",
             auth_token: user.auth_tokens.create(content: AuthToken.encode({ user_id: user.id, ip: request.remote_ip })) },
               status: :ok
         end

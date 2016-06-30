@@ -4,9 +4,9 @@ module Api::V1
     before_action :set_starship, only: [:show, :update, :destroy]
 
     def index
-      starship = Starship.all
+      @sw_units = Starship.all.page(params[:page]).per(params[:per])
 
-      render json: starship, each_serializer: Starships::IndexSerializer
+      render json: @sw_units, each_serializer: Starships::IndexSerializer
     end
 
     def create
@@ -47,6 +47,5 @@ module Api::V1
       params.require(:starship).permit(:name, :model, :manufacturer, :cost_in_credits, :length, :max_atmosphering_speed,
         :crew, :passengers, :cargo_capacity, :consumables, :hyperdrive_rating, :MGLT, :starship_class, :url)
     end
-
   end
 end

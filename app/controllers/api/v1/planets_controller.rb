@@ -4,9 +4,9 @@ module Api::V1
     before_action :set_planet, only: [:show, :update, :destroy]
 
     def index
-      planet = Planet.all
+      @sw_units = Planet.all.page(params[:page]).per(params[:per])
 
-      render json: planet, each_serializer: Planets::IndexSerializer
+      render json: @sw_units, each_serializer: Planets::IndexSerializer
     end
 
     def create
@@ -47,6 +47,5 @@ module Api::V1
       params.require(:planet).permit(:name, :rotation_period, :orbital_period, :diameter, :climate, :gravity, :terrain,
         :surface_water, :population, :url)
     end
-
   end
 end

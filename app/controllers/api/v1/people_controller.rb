@@ -4,9 +4,9 @@ module Api::V1
     before_action :set_person, only: [:show, :update, :destroy]
 
     def index
-      people = Person.all
+      @sw_units = Person.all.page(params[:page]).per(params[:per])
 
-      render json: people, each_serializer: People::IndexSerializer
+      render json: @sw_units, each_serializer: People::IndexSerializer
     end
 
     def create
@@ -47,6 +47,5 @@ module Api::V1
       params.require(:person).permit(:name, :birth_year, :eye_color, :gender, :hair_color, :height, :mass,
         :skin_color, :planet_id, :url)
     end
-
   end
 end

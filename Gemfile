@@ -17,6 +17,8 @@ gem 'bcrypt', '~> 3.1.7'
 
 gem 'haml-rails', '~> 0.9.0'
 
+gem 'kaminari'
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 

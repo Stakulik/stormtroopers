@@ -11,6 +11,7 @@ class ApplicationController < ActionController::API
 
   before_action :add_allow_credentials_headers
   after_action :prolong_token, if: -> () { @auth_token }
+  after_action :add_nav_links, only: [:index], if: -> () { @sw_units }
 
   def options
     head status: 200, "Access-Control-Allow-Headers": "authorization, accept, content-type"
@@ -77,5 +78,15 @@ class ApplicationController < ActionController::API
 
   def record_not_found
     render plain: "404 Not Found", status: :not_found
+  end
+
+  def add_nav_links
+    add_page_link("prev_page", params[:page].to_i - 1) if params[:page].to_i - 1 > 0
+
+    add_page_link("next_page", params[:page].to_i + 1) if @sw_units.page(params[:page].to_i + 1).per(params[:per]).any?
+  end
+
+  def add_page_link(type, page_number)
+    response.body.insert(1, "\"#{type}\":\"#{request.path}/?page=#{page_number}&per=#{params[:per]}\",")
   end
 end
