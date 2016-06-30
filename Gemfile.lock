@@ -88,9 +88,6 @@ GEM
       guard (~> 2.1)
       guard-compat (~> 1.1)
       rspec (>= 2.99.0, < 4.0)
-    guard-rubocop (1.2.0)
-      guard (~> 2.0)
-      rubocop (~> 0.20)
     guard-zeus (2.0.1)
       guard (~> 2.0)
       guard-compat (~> 1.1)
@@ -270,7 +267,6 @@ DEPENDENCIES
   guard-migrate
   guard-rails
   guard-rspec
-  guard-rubocop
   guard-zeus
   haml-rails (~> 0.9.0)
   jwt
@@ -282,7 +278,7 @@ DEPENDENCIES
   rails_12factor
   rest-client
   rspec-rails
-  rubocop
+  rubocop (~> 0.41.0)
   shoulda-matchers
   spring
   spring-watcher-listen (~> 2.0.0)

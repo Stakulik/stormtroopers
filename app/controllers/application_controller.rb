@@ -10,6 +10,7 @@ class ApplicationController < ActionController::API
   attr_reader :current_user
 
   before_action :add_allow_credentials_headers
+  before_action :authenticate_request!, if: -> () { %w(people starships planets).include?(params[:controller][7..-1]) }
   after_action :prolong_token, if: -> () { @auth_token }
   after_action :add_nav_links, only: [:index], if: -> () { @sw_units }
 
@@ -20,7 +21,7 @@ class ApplicationController < ActionController::API
   private
 
   def authenticate_request!
-    fail Exceptions::NotAuthenticatedError unless get_auth_token && find_current_user && decoded_auth_token[:ip]
+    raise Exceptions::NotAuthenticatedError unless get_auth_token && find_current_user && decoded_auth_token[:ip]
 
     rescue JWT::ExpiredSignature
       raise Exceptions::AuthenticationTimeoutError
@@ -35,8 +36,10 @@ class ApplicationController < ActionController::API
 
   def prolong_token
     if (@decoded_auth_token[:exp] - Time.now.to_i < 12.hours.to_i) && check_clients_ip
-      new_auth_token = @current_user.auth_tokens.create(content: AuthToken.encode({ user_id: @current_user.id,
-        ip: request.remote_ip }))&.content
+      new_auth_token = @current_user.auth_tokens.create(content: AuthToken.encode({
+                                                          user_id: @current_user.id,
+                                                          ip: request.remote_ip })
+                                                       )&.content
 
       response.set_header("X-APP-TOKEN", new_auth_token)
     end

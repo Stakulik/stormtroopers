@@ -33,8 +33,7 @@ group :development, :test do
   gem 'guard-zeus', require: false
   gem 'guard-rails', require: false
   gem 'guard-migrate', require: false
-  gem 'guard-rubocop', require: false
-  gem 'rubocop', require: false
+  gem 'rubocop', '~> 0.41.0', require: false
 end
 
 group :development do

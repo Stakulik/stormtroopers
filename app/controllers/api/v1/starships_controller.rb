@@ -1,6 +1,5 @@
 module Api::V1
   class StarshipsController < ApplicationController
-    before_action :authenticate_request!
     before_action :set_starship, only: [:show, :update, :destroy]
 
     def index

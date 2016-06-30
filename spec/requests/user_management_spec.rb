@@ -13,7 +13,7 @@ describe "User", type: :request do
 
       get v1_confirmation_path(confirmation_token: User.last.confirmation_token)
 
-      expect(response.body).to include("Your account has been successfully confirmed")
+      expect(response.body).to include("Thanks for signing up for Stormtroopers application")
 
       get v1_users_path(User.last), nil, headers
 
@@ -41,7 +41,7 @@ describe "User", type: :request do
 
       get v1_confirmation_path(confirmation_token: User.last.confirmation_token)
 
-      expect(response.body).to include("Your account has been successfully confirmed")
+      expect(response.body).to include("Thanks for signing up for Stormtroopers application")
     end
   end
 

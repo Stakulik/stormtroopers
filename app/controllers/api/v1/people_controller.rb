@@ -1,6 +1,5 @@
 module Api::V1
   class PeopleController < ApplicationController
-    before_action :authenticate_request!
     before_action :set_person, only: [:show, :update, :destroy]
 
     def index

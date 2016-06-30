@@ -12,7 +12,7 @@ module Api::V1
     def create
       user = User.new(user_params)
 
-      user.confirmation_token = AuthToken.encode({ }, 1440)
+      user.confirmation_token = AuthToken.encode({}, 1440)
 
       if user.save
         RegistrationMailer.confirmation_instructions(user).deliver_now
@@ -53,7 +53,7 @@ module Api::V1
 
           return render json: { success: "Thanks for signing up for Stormtroopers application",
             auth_token: user.auth_tokens.create(content: AuthToken.encode({ user_id: user.id, ip: request.remote_ip })) },
-              status: :ok
+            status: :ok
         end
       end
 
@@ -90,9 +90,10 @@ module Api::V1
       elsif @user&.update_attributes(user_params)
         AuthToken.where(user_id: @user).destroy_all
 
-        render json: { success: "Your password has been changed",
+        render json:
+          { success: "Your password has been changed",
           auth_token: @user.auth_tokens.create(content: AuthToken.encode({ user_id: @user.id, ip: request.remote_ip })) },
-            status: :ok
+          status: :ok
       else
         render json: { errors: @user.errors }, status: :unprocessable_entity
       end

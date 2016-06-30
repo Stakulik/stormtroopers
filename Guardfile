@@ -49,10 +49,6 @@ guard :rails, zeus: true do
   watch(%r{^(config|lib)/.*})
 end
 
-guard :rubocop, all_on_start: false, cli: ["--out", "log/rubocop.log"] do
-  watch(%r{^(.+)\.rb$}) { |m| "#{m[1]}.rb" }
-end
-
 guard :migrate, cmd: "zeus rake", bundler: false do
   watch(%r{^db/migrate/(\d+).+\.rb})
   watch("db/seeds.rb")
