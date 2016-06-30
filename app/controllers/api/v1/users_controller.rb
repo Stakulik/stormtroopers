@@ -4,6 +4,7 @@ module Api::V1
     before_action :get_user_by_email, only: [:forgot_password, :update_password]
     before_action :check_user_confirmation, only: [:forgot_password, :update_password]
     before_action :check_expiration, only: [:confirmation, :reset_password]
+    before_action :check_current_password, only: [:update]
 
     def show
       render json: @current_user, serializer: Users::ShowSerializer
@@ -25,10 +26,6 @@ module Api::V1
     end
 
     def update
-      unless User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
-        return render json: { errors: "The current password is incorrect" }, status: :unprocessable_entity
-      end
-
       if @current_user.update_attributes(user_params)
         render json: { success: "Your profile has been update successfully" }, status: :ok
       else
@@ -117,6 +114,12 @@ module Api::V1
         raise Exceptions::AuthenticationTimeoutError
       rescue  JWT::VerificationError, JWT::DecodeError
         raise Exceptions::NotAuthenticatedError
+    end
+
+    def check_current_password
+      check = User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
+
+      return render json: { errors: "The current password is incorrect" }, status: :unprocessable_entity unless check
     end
   end
 end

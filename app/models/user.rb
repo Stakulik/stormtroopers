@@ -9,8 +9,7 @@ class User < ApplicationRecord
   validates :first_name, length: { in: 3..30 }
   validates :last_name, length: { in: 3..30 }
   validates :password, length: { in: 6..20}, on: :create
-  validates :password, length: { in: 6..20}, on: :update, unless: :password_blank?
-  validates_presence_of :current_password, on: :update, unless: :reset_password?
+  validates :password, length: { in: 6..20}, on: :update, unless: -> (user) { user.current_password }
 
   has_secure_password
 
@@ -25,15 +24,4 @@ class User < ApplicationRecord
 
     User.find_by(email: email)&.authenticate(password)
   end
-
-  private
-
-  def password_blank?
-    password.blank? && password_confirmation.blank?
-  end
-
-  def reset_password?
-    self.reset_password_token
-  end
-
 end
