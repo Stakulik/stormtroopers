@@ -10,7 +10,7 @@ class ApplicationController < ActionController::API
   attr_reader :current_user
 
   before_action :add_allow_credentials_headers
-  before_action :authenticate_request!, if: -> () { %w(people starships planets).include?(params[:controller][7..-1]) }
+  # before_action :authenticate_request!, if: -> () { %w(people starships planets).include?(params[:controller][7..-1]) }
   after_action :prolong_token, if: -> () { @auth_token }
   after_action :add_nav_links, only: [:index], if: -> () { @sw_units }
 
