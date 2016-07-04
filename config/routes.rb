@@ -17,9 +17,9 @@ Rails.application.routes.draw do
       delete "/destroy_account", to: "users#destroy"
 
       resource :users
-      resources :people
-      resources :starships
-      resources :planets
+      resources :people, controller: "sw_units"
+      resources :starships, controller: "sw_units"
+      resources :planets, controller: "sw_units"
     end
   end
 
