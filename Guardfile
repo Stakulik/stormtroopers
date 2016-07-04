@@ -44,12 +44,11 @@ guard :rspec, cmd: "zeus rspec" do
   watch(rails.routes)          { "#{rspec.spec_dir}/requests" }
 end
 
-guard :rails, zeus: true do
+guard :rails, zeus: true, daemon: true do
   watch("Gemfile.lock")
   watch(%r{^(config|lib)/.*})
 end
 
 guard :migrate, cmd: "zeus rake", bundler: false do
   watch(%r{^db/migrate/(\d+).+\.rb})
-  watch("db/seeds.rb")
 end

@@ -1,9 +1,10 @@
 module Api::V1
   class StarshipsController < ApplicationController
     before_action :set_starship, only: [:show, :update, :destroy]
+    before_action :define_sort_params, only: [:index]
 
     def index
-      @sw_units = Starship.all.page(params[:page]).per(params[:per])
+      @sw_units = Starship.all.order(@prop => @sort).page(params[:page]).per(params[:per])
 
       render json: @sw_units, each_serializer: Starships::IndexSerializer
     end
@@ -45,6 +46,12 @@ module Api::V1
     def starship_params
       params.require(:starship).permit(:name, :model, :manufacturer, :cost_in_credits, :length, :max_atmosphering_speed,
         :crew, :passengers, :cargo_capacity, :consumables, :hyperdrive_rating, :MGLT, :starship_class, :url)
+    end
+
+    def define_sort_params
+      @prop = (params[:property] || "id").to_sym
+
+      @sort = (params[:sort_by] || "asc").to_sym
     end
   end
 end

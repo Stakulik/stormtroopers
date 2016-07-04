@@ -84,9 +84,11 @@ class ApplicationController < ActionController::API
   end
 
   def add_nav_links
+    if @sw_units.page(params[:page].to_i + 1).per(params[:per]).any? && params[:page]
+      add_page_link("next_page", params[:page].to_i + 1)
+    end
+    
     add_page_link("prev_page", params[:page].to_i - 1) if params[:page].to_i - 1 > 0
-
-    add_page_link("next_page", params[:page].to_i + 1) if @sw_units.page(params[:page].to_i + 1).per(params[:per]).any?
   end
 
   def add_page_link(type, page_number)
