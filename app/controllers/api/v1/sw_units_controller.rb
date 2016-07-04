@@ -4,12 +4,11 @@ module Api::V1
     before_action :get_sw_unit_class
     before_action :get_sw_unit, only: [:show, :update, :destroy]
     before_action :define_sort_params, only: [:index]
-    after_action :add_nav_links, only: [:index]
 
     def index
       @sw_units = @sw_unit_class.all.order(@prop => @sort).page(params[:page]).per(params[:per])
 
-      render json: @sw_units, each_serializer: SwUnits::IndexSerializer
+      render json: @sw_units, meta: pagination_dict(@sw_units), each_serializer: SwUnits::IndexSerializer
     end
 
     def create
@@ -76,16 +75,14 @@ module Api::V1
       @sort = (params[:sort_by] || "asc").to_sym
     end
 
-    def add_nav_links
-      if @sw_units.page(params[:page].to_i + 1).per(params[:per]).any? && params[:page]
-        add_page_link("next_page", params[:page].to_i + 1)
-      end
-      
-      add_page_link("prev_page", params[:page].to_i - 1) if params[:page].to_i - 1 > 0
-    end
-
-    def add_page_link(type, page_number)
-      response.body.insert(1, "\"#{type}\":\"#{request.path}/?page=#{page_number}&per=#{params[:per]}\",")
+    def pagination_dict(object)
+      {
+        current_page: object.current_page,
+        next_page: object.next_page,
+        prev_page: object.prev_page,
+        total_pages: object.total_pages,
+        total_count: object.total_count
+      }
     end
   end
 end
