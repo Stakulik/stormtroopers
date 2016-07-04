@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160617075604) do
+ActiveRecord::Schema.define(version: 20160701083626) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -30,8 +30,8 @@ ActiveRecord::Schema.define(version: 20160617075604) do
     t.string   "eye_color",  default: "", null: false
     t.string   "gender",     default: "", null: false
     t.string   "hair_color", default: "", null: false
-    t.string   "height",     default: "", null: false
-    t.string   "mass",       default: "", null: false
+    t.integer  "height",     default: 0,  null: false
+    t.integer  "mass",       default: 0,  null: false
     t.string   "skin_color", default: "", null: false
     t.datetime "created_at",              null: false
     t.datetime "updated_at",              null: false
@@ -48,36 +48,36 @@ ActiveRecord::Schema.define(version: 20160617075604) do
 
   create_table "planets", force: :cascade do |t|
     t.string   "name"
-    t.string   "rotation_period"
-    t.string   "orbital_period"
-    t.string   "diameter"
+    t.integer  "rotation_period", default: 0
+    t.integer  "orbital_period",  default: 0
+    t.integer  "diameter",        default: 0
     t.string   "climate"
     t.string   "gravity"
     t.string   "terrain"
-    t.string   "surface_water"
-    t.string   "population"
-    t.string   "url",             null: false
-    t.datetime "created_at",      null: false
-    t.datetime "updated_at",      null: false
+    t.integer  "surface_water",   default: 0
+    t.bigint   "population",      default: 0
+    t.string   "url",                         null: false
+    t.datetime "created_at",                  null: false
+    t.datetime "updated_at",                  null: false
   end
 
   create_table "starships", force: :cascade do |t|
     t.string   "name",                   default: ""
     t.string   "model",                  default: ""
-    t.datetime "created_at",                          null: false
-    t.datetime "updated_at",                          null: false
-    t.string   "url",                                 null: false
+    t.datetime "created_at",                           null: false
+    t.datetime "updated_at",                           null: false
+    t.string   "url",                                  null: false
     t.string   "manufacturer"
-    t.string   "cost_in_credits"
-    t.string   "max_atmosphering_speed"
-    t.string   "passengers"
-    t.string   "cargo_capacity"
+    t.bigint   "cost_in_credits",        default: 0
+    t.integer  "max_atmosphering_speed", default: 0
+    t.integer  "passengers",             default: 0
+    t.bigint   "cargo_capacity",         default: 0
     t.string   "consumables"
-    t.string   "hyperdrive_rating"
+    t.float    "hyperdrive_rating",      default: 0.0
     t.string   "MGLT"
     t.string   "starship_class"
-    t.string   "length"
-    t.string   "crew"
+    t.float    "length",                 default: 0.0
+    t.integer  "crew",                   default: 0
   end
 
   create_table "users", force: :cascade do |t|
