@@ -17,10 +17,12 @@ Rails.application.routes.draw do
       delete "/destroy_account", to: "users#destroy"
 
       resource :users
-      resources :people, controller: "sw_units"
-      resources :starships, controller: "sw_units"
-      resources :planets, controller: "sw_units"
+
+      resources :planets, :people, :starships, controller: "sw_units" do
+        collection do
+          get "/search", to: "sw_units#search"
+        end
+      end
     end
   end
-
 end

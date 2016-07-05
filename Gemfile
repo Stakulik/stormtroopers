@@ -6,12 +6,13 @@ gem 'rails', '>= 5.0.0.rc1', '< 5.1'
 gem 'puma', '~> 3.0'
 
 gem 'pg'
+gem 'pg_search'
+
+gem 'jwt'
 
 gem 'active_model_serializers', '~> 0.9.3'
 
 gem 'rest-client'
-
-gem 'jwt'
 
 gem 'bcrypt', '~> 3.1.7'
 

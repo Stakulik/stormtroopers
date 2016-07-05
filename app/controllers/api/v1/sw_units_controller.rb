@@ -8,7 +8,9 @@ module Api::V1
     def index
       @sw_units = @sw_unit_class.all.order(@sort_by => @order).page(params[:page]).per(params[:per])
 
-      render json: @sw_units, meta: pagination_dict(@sw_units), each_serializer: SwUnits::IndexSerializer
+      render json: @sw_units,
+             meta: pagination_dict(@sw_units),
+             each_serializer: SwUnits::IndexSerializer
     end
 
     def create
@@ -37,6 +39,14 @@ module Api::V1
       @sw_unit.destroy
 
       render nothing: true, status: :no_content
+    end
+
+    def search
+      @sw_units = @sw_unit_class.search_in_name(params[:query]).page(params[:page]).per(10)
+
+      render json: @sw_units,
+             meta: pagination_dict(@sw_units),
+             each_serializer: SwUnits::IndexSerializer
     end
 
     private
