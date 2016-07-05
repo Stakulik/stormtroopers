@@ -6,7 +6,7 @@ module Api::V1
     before_action :define_sort_params, only: [:index]
 
     def index
-      @sw_units = @sw_unit_class.all.order(@prop => @sort).page(params[:page]).per(params[:per])
+      @sw_units = @sw_unit_class.all.order(@sort_by => @order).page(params[:page]).per(params[:per])
 
       render json: @sw_units, meta: pagination_dict(@sw_units), each_serializer: SwUnits::IndexSerializer
     end
@@ -70,9 +70,9 @@ module Api::V1
     end
 
     def define_sort_params
-      @prop = (params[:property] || "id").to_sym
+      @sort_by = (params[:sort_by] || "id").to_sym
 
-      @sort = (params[:sort_by] || "asc").to_sym
+      @order = (params[:order] || "asc").to_sym
     end
 
     def pagination_dict(object)
