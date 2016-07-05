@@ -1,14 +1,16 @@
+require "faker"
+
 FactoryGirl.define do
   factory :planet, aliases: [:homeworld] do
-    name            "Custom planet"
-    rotation_period 33
-    orbital_period  125
+    name            Faker::StarWars.planet
+    rotation_period Faker::Number.number(2)
+    orbital_period  Faker::Number.number(3)
     terrain         "canyons, sinkholes"
-    population      100500
+    population      Faker::Number.number(6)
     climate         "temperate"
-    diameter        3000
+    diameter        Faker::Number.number(4)
     gravity         "3 not standard"
-    surface_water   20
+    surface_water   Faker::Number.number(2)
     url             "http://swapi.co/api/planets/"
   end
 end

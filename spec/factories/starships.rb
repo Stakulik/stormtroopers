@@ -1,18 +1,18 @@
 FactoryGirl.define do
   factory :starship do
-    name                    "Custom space ship"
-    model                   "Suppa Turbo 3"
-    max_atmosphering_speed  30234
-    cost_in_credits         130000
-    manufacturer            "Incom Corporation"
-    passengers              300
-    cargo_capacity          934934
-    hyperdrive_rating       10.3
+    name                    Faker::StarWars.vehicle
+    model                   Faker::Lorem.word.capitalize
+    max_atmosphering_speed  Faker::Number.number(5)
+    cost_in_credits         Faker::Number.number(6)
+    manufacturer            Faker::Company.name
+    passengers              Faker::Number.number(3)
+    cargo_capacity          Faker::Number.number(6)
+    hyperdrive_rating       Faker::Number.decimal(2, 1)
     consumables             "1 week"
     MGLT                    "100"
     starship_class          "Starfighter"
-    length                  500.2
-    crew                    29
+    length                  Faker::Number.decimal(3, 1)
+    crew                    Faker::Number.number(3)
     url                     "http://swapi.co/api/starships/"
   end
 end

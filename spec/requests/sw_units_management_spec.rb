@@ -25,8 +25,8 @@ require "rails_helper"
 
         expect(response.status).to eq(422)
 
-        post "#{units_path}", { "#{unit_type}": attributes_for(unit_type, name: "My #{unit_type}", planet_id: planet.id) },
-          headers
+        post "#{units_path}", { "#{unit_type}": attributes_for(unit_type, name: "My #{unit_type}",
+          planet_id: planet.id) }, headers
 
         expect(response.status).to eq(201)
 
@@ -42,11 +42,13 @@ require "rails_helper"
 
         expect(response.body).to include(unit.name)
 
-        put "#{units_path}/#{unit.id}", { "#{unit_type}": attributes_for(unit_type, name: "") }, headers
+        put "#{units_path}/#{unit.id}", { "#{unit_type}": attributes_for(unit_type, name: "") },
+          headers
 
         expect(response.status).to eq(422)
 
-        put "#{units_path}/#{unit.id}", { "#{unit_type}": attributes_for(unit_type, name: "#{unit_type} 3000") }, headers
+        put "#{units_path}/#{unit.id}", { "#{unit_type}": attributes_for(unit_type,
+          name: "#{unit_type} 3000") }, headers
 
         expect(response.status).to eq(200)
 
@@ -76,7 +78,8 @@ require "rails_helper"
       end
 
       it "can't create a new #{unit_type}" do
-        post "#{units_path}", { "#{unit_type}": attributes_for(unit_type, name: "My #{unit_type}") }, headers
+        post "#{units_path}", { "#{unit_type}": attributes_for(unit_type, name: "My #{unit_type}") },
+          headers
 
         expect(response.status).to eq(401)
 
@@ -90,7 +93,8 @@ require "rails_helper"
 
         expect(response.status).to eq(401)
 
-        put "#{units_path}/#{unit.id}", { "#{unit_type}": attributes_for(unit_type, name: "#{unit_type} 3000") }, headers
+        put "#{units_path}/#{unit.id}", { "#{unit_type}": attributes_for(unit_type,
+          name: "#{unit_type} 3000") }, headers
 
         expect(response.status).to eq(401)
       end
@@ -99,6 +103,34 @@ require "rails_helper"
         delete "#{units_path}/#{unit.id}", nil, headers
 
         expect(response.status).to eq(401)
+      end
+    end
+
+    describe "pagination" do
+      context "user is able" do
+        it "to change a count of #{unit_type}s and to move through the pages" do
+          22.times { create(unit_type) }
+
+          log_in(confirmed_user)
+
+          get "#{units_path}/?page=1&&per=4", nil, headers
+
+          expect(response.body).to include("name")
+          expect(response.body).to include("next_page")
+          expect(response.body).to include('"prev_page":null')
+          expect(response.body).to include('"total_pages":6')
+
+          get "#{units_path}/?page=2&&per=10", nil, headers
+
+          expect(response.body).to include("next_page")
+          expect(response.body).to include("prev_page")     
+          expect(response.body).to include('"total_pages":3')
+
+          get "#{units_path}/?page=3&&per=10", nil, headers
+
+          expect(response.body).to include("total_count")
+          expect(response.body).to include('"next_page":null')
+        end
       end
     end
 
