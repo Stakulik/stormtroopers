@@ -134,6 +134,29 @@ require "rails_helper"
       end
     end
 
+    describe "filter" do
+      it "by name" do
+        ("a".."m").each { |l| create(unit_type, name: l * 2) }
+
+        log_in(confirmed_user)
+
+        get "#{units_path}/?page=1&&per=10&&sort_by=name", nil, headers #default order=asc
+
+        expect(response.body).to include("aa")
+        expect(response.body).to_not include("mm")
+
+        get "#{units_path}/?page=2&&per=10&&sort_by=name&&order=asc", nil, headers
+
+        expect(response.body).to include("mm")
+        expect(response.body).to_not include("aa")
+
+        get "#{units_path}/?page=1&&per=10&&sort_by=name&&order=desc", nil, headers
+
+        expect(response.body).to include("mm")
+        expect(response.body).to_not include("aa")
+      end
+    end
+
     describe "#search" do
       it "successfully - a #{unit_type} exists" do
         log_in(confirmed_user)
