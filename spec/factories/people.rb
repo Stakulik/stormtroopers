@@ -5,10 +5,10 @@ FactoryGirl.define do
     eye_color     "grey"
     gender        "male"
     hair_color    "-"
-    height        "1.98"
-    mass          "103"
+    height        1.98
+    mass          103
     skin_color    "brown"
-    url         ""
+    url           "http://swapi.co/api/people/"
     homeworld
   end
 end
