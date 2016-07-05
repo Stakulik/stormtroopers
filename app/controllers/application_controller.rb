@@ -19,7 +19,9 @@ class ApplicationController < ActionController::API
   private
 
   def authenticate_request!
-    raise Exceptions::NotAuthenticatedError unless get_auth_token && find_current_user && decoded_auth_token[:ip]
+    unless get_auth_token && find_current_user && decoded_auth_token[:ip]
+      raise Exceptions::NotAuthenticatedError
+    end
 
     rescue JWT::ExpiredSignature
       raise Exceptions::AuthenticationTimeoutError
@@ -34,10 +36,10 @@ class ApplicationController < ActionController::API
 
   def prolong_token
     if (@decoded_auth_token[:exp] - Time.now.to_i < 12.hours.to_i) && check_clients_ip
-      new_auth_token = @current_user.auth_tokens.create(content: AuthToken.encode({
-                                                          user_id: @current_user.id,
-                                                          ip: request.remote_ip })
-                                                       )&.content
+      new_auth_token = @current_user.auth_tokens.
+                         create(content: AuthToken.encode(user_id: @current_user.id,
+                                                          ip: request.remote_ip)
+                               )&.content
 
       response.set_header("X-APP-TOKEN", new_auth_token)
     end
@@ -74,7 +76,9 @@ class ApplicationController < ActionController::API
   end
 
   def check_user_confirmation
-    render json: { errors: "You have to confirm your email" }, status: :forbidden if @user && !@user.confirmed_at
+    if @user && !@user.confirmed_at
+      render json: { errors: "You have to confirm your email" }, status: :forbidden
+    end
   end
 
   def record_not_found

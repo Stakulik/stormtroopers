@@ -1,7 +1,7 @@
 module Api::V1
   class UsersController < ApplicationController
     before_action :authenticate_request!, only: [:show, :update, :destroy]
-    before_action :get_user_by_email, only: [:forgot_password, :update_password]
+    before_action :find_user_by_email, only: [:forgot_password, :update_password]
     before_action :check_user_confirmation, only: [:forgot_password, :update_password]
     before_action :check_expiration, only: [:confirmation, :reset_password]
     before_action :check_current_password, only: [:update]
@@ -19,7 +19,7 @@ module Api::V1
         RegistrationMailer.confirmation_instructions(user).deliver_now
 
         render json: { success: "Please go to your inbox #{user.email} and confirm creating an account" },
-          status: :created
+               status: :created
       else
         render json: { errors: user.errors }, status: :unprocessable_entity
       end
@@ -40,33 +40,28 @@ module Api::V1
     end
 
     def confirmation
-      if conf_token = params[:confirmation_token]
-        user = User.find_by(confirmation_token: conf_token)
+      user = User.find_by("confirmation_token = ?", params[:confirmation_token] || "-")
 
-        if user && !user.confirmed_at
-          user.assign_attributes({ confirmation_token: nil, confirmed_at: Time.now })
-
-          user.save(validate: false)
-
-          return render json: { success: "Thanks for signing up for Stormtroopers application",
-            auth_token: user.auth_tokens.create(content: AuthToken.encode({ user_id: user.id, ip: request.remote_ip })) },
-            status: :ok
-        end
+      unless user || !user.confirmed_at
+        return render json: { errors: "Confirmation link is invalid" }, status: :bad_request
       end
 
-      render json: { errors: "Confirmation link is invalid" }, status: :bad_request
+      user.assign_attributes(confirmation_token: nil, confirmed_at: Time.now)
+
+      user.save(validate: false)
+
+      render json: { success: "Thanks for signing up for Stormtroopers application",
+                     auth_token: user.auth_tokens.
+                       create(content: AuthToken.encode(user_id: user.id, ip: request.remote_ip)) },
+             status: :ok
     end
 
     def forgot_password
-      if @user
-        @user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: @user.id }, 120))
+      @user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: @user.id }, 120))
 
-        RegistrationMailer.reset_password_instructions(@user).deliver_now
+      RegistrationMailer.reset_password_instructions(@user).deliver_now
 
-        render json: { success: "We've send instructions onto #{@user.email}" }, status: :ok
-      else
-        render json: { errors: "Link is invalid" }, status: :bad_request
-      end
+      render json: { success: "We've send instructions onto #{@user.email}" }, status: :ok
     end
 
     def reset_password
@@ -80,31 +75,32 @@ module Api::V1
     end
 
     def update_password
+      unless @user&.update_attributes(user_params)
+        return render json: { errors: @user.errors }, status: :unprocessable_entity
+      end
+
       user_params[:reset_password_token] = nil
 
-      if !@user
-        render json: { errors: "Link is invalid" }, status: :bad_request
-      elsif @user&.update_attributes(user_params)
-        AuthToken.where(user_id: @user).destroy_all
+      AuthToken.where(user_id: @user).destroy_all
 
-        render json:
-          { success: "Your password has been changed",
-          auth_token: @user.auth_tokens.create(content: AuthToken.encode({ user_id: @user.id, ip: request.remote_ip })) },
-          status: :ok
-      else
-        render json: { errors: @user.errors }, status: :unprocessable_entity
-      end
+      render json:
+               { success: "Your password has been changed",
+                 auth_token: @user.auth_tokens.
+                   create(content: AuthToken.encode(user_id: @user.id, ip: request.remote_ip)) },
+             status: :ok
     end
 
     private
 
     def user_params
-      params.require(:user).permit(:first_name, :last_name, :email, :password, :password_confirmation,
-        :confirmation_token, :confirmed_at, :current_password)
+      params.require(:user).permit(:first_name, :last_name, :email, :password, :confirmed_at,
+        :password_confirmation, :confirmation_token, :current_password)
     end
 
-    def get_user_by_email
-      @user = User.find_by(email: params[:email] || user_params[:email]) rescue nil
+    def find_user_by_email
+      @user = User.find_by(email: params[:email] || user_params[:email])
+
+      render json: { errors: "Link is invalid" }, status: :bad_request unless @user
     end
 
     def check_expiration
@@ -119,7 +115,10 @@ module Api::V1
     def check_current_password
       check = User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
 
-      return render json: { errors: "The current password is incorrect" }, status: :unprocessable_entity unless check
+      unless check
+        return render json: { errors: "The current password is incorrect" },
+                      status: :unprocessable_entity
+      end
     end
   end
 end

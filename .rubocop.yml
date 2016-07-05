@@ -2,7 +2,7 @@ AllCops:
   TargetRubyVersion: 2.3
 
 Metrics/LineLength:
-  Max: 120
+  Max: 100
 
 StringLiterals:
   Enabled: false
@@ -15,3 +15,9 @@ FrozenStringLiteralComment:
 
 ClassAndModuleChildren:
   EnforcedStyle: compact
+
+DotPosition:
+  EnforcedStyle: trailing
+
+RescueModifier:
+  Enabled: false

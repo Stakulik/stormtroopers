@@ -26,7 +26,7 @@ Dir["./spec/support/*.rb"].sort.each { |f| require f }
 ActiveRecord::Migration.maintain_test_schema!
 
 RSpec.configure do |config|
-   config.include UserSessionHelper, type: :request
+  config.include UserSessionHelper, type: :request
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
@@ -50,8 +50,8 @@ RSpec.configure do |config|
   # https://relishapp.com/rspec/rspec-rails/docs
   config.infer_spec_type_from_file_location!
 
-  Shoulda::Matchers.configure do |config|
-    config.integrate do |with|
+  Shoulda::Matchers.configure do |conf|
+    conf.integrate do |with|
       with.test_framework :rspec
       with.library :active_model
     end

@@ -9,7 +9,9 @@ describe "User", type: :request do
     it "successfully" do
       post v1_signup_path, user: attributes_for(:user)
 
-      expect(response.body).to include("Please go to your inbox #{User.last.email} and confirm creating an account")
+      expect(response.body).to include(
+        "Please go to your inbox #{User.last.email} and confirm creating an account"
+      )
 
       get v1_confirmation_path(confirmation_token: User.last.confirmation_token)
 
@@ -21,15 +23,17 @@ describe "User", type: :request do
     end
 
     it "gets errors (sends invalid data)" do
-      post v1_signup_path, user: attributes_for(:user, password: "pas", email: "" )
+      post v1_signup_path, user: attributes_for(:user, password: "pas", email: "")
 
-      expect(response.body).to include( "errors")
+      expect(response.body).to include("errors")
     end
 
     it "a confirmation link expires after 24 hours" do
       post v1_signup_path, user: attributes_for(:user)
 
-      expect(response.body).to include("Please go to your inbox #{User.last.email} and confirm creating an account")
+      expect(response.body).to include(
+        "Please go to your inbox #{User.last.email} and confirm creating an account"
+      )
 
       Timecop.travel(Time.now + 25.hours)
 
@@ -50,17 +54,23 @@ describe "User", type: :request do
       it "first name and last name successfully" do
         log_in(confirmed_user)
 
-        put v1_users_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia" } }, headers
+        put v1_users_path(confirmed_user),
+            { user: { first_name: "Francisco", last_name: "D'anconia" } },
+            headers
 
         expect(response.body).to include("errors")
 
-        put v1_users_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
-          current_password: "wrongPassword" } }, headers
+        put v1_users_path(confirmed_user),
+            { user: { first_name: "Francisco", last_name: "D'anconia",
+                      current_password: "wrongPassword" } },
+            headers
 
         expect(response.body).to include("errors")
 
-        put v1_users_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
-          current_password: confirmed_user.password } }, headers
+        put v1_users_path(confirmed_user),
+            { user: { first_name: "Francisco", last_name: "D'anconia",
+                      current_password: confirmed_user.password } },
+            headers
 
         expect(response.body).to include("Your profile has been update successfully")
 
@@ -72,13 +82,16 @@ describe "User", type: :request do
       it "password successfully" do
         log_in(confirmed_user)
 
-        put v1_users_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword" } },
-          headers
+        put v1_users_path(confirmed_user),
+            { user: { password: "newpassword", password_confirmation: "newpassword" } },
+            headers
 
         expect(response.body).to include("errors")
 
-        put v1_users_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword",
-          current_password: confirmed_user.password } }, headers
+        put v1_users_path(confirmed_user),
+            { user: { password: "newpassword", password_confirmation: "newpassword",
+                      current_password: confirmed_user.password } },
+            headers
 
         expect(response.body).to include("Your profile has been update successfully")
 
@@ -92,7 +105,9 @@ describe "User", type: :request do
       it "email successfully" do
         log_in(confirmed_user)
 
-        put v1_users_path(confirmed_user), { user: { email: "w@e", current_password: confirmed_user.password } }, headers
+        put v1_users_path(confirmed_user),
+            { user: { email: "w@e", current_password: confirmed_user.password } },
+            headers
 
         expect(response.body).to include("errors")
 
@@ -101,7 +116,8 @@ describe "User", type: :request do
         expect(response.body).to include("errors")
 
         put v1_users_path(confirmed_user),
-          { user: { email: "new@example.com", current_password: confirmed_user.password } }, headers
+            { user: { email: "new@example.com", current_password: confirmed_user.password } },
+            headers
 
         expect(response.body).to include("Your profile has been update successfully")
 
@@ -129,34 +145,39 @@ describe "User", type: :request do
   context "not authenticated" do
     describe "get's errors when updates account's" do
       it "first name and last name" do
-        post v1_login_path, { user: { email: confirmed_user.email, password: "wrongPassword" } }
+        post v1_login_path, user: { email: confirmed_user.email, password: "wrongPassword" }
 
         expect(response.body).to include("errors")
 
-        put v1_users_path(confirmed_user), { user: { first_name: "Francisco", last_name: "D'anconia",
-          current_password: confirmed_user.password } }, headers
+        put v1_users_path(confirmed_user),
+            { user: { first_name: "Francisco", last_name: "D'anconia",
+                      current_password: confirmed_user.password } },
+            headers
 
         expect(response.body).to include("Not Authenticated")
       end
 
       it "password" do
-        post v1_login_path, { user: { email: confirmed_user.email, password: "wrongPassword" } }
+        post v1_login_path, user: { email: confirmed_user.email, password: "wrongPassword" }
 
         expect(response.body).to include("errors")
 
-        put v1_users_path(confirmed_user), { user: { password: "newpassword", password_confirmation: "newpassword",
-          current_password: confirmed_user.password } }, headers
+        put v1_users_path(confirmed_user),
+            { user: { password: "newpassword", password_confirmation: "newpassword",
+                      current_password: confirmed_user.password } },
+            headers
 
         expect(response.body).to include("Not Authenticated")
       end
 
       it "email" do
-        post v1_login_path, { user: { email: confirmed_user.email, password: "wrongPassword" } }
+        post v1_login_path, user: { email: confirmed_user.email, password: "wrongPassword" }
 
         expect(response.body).to include("errors")
 
         put v1_users_path(confirmed_user),
-          { user: { email: "new@example.com", current_password: confirmed_user.password } }, headers
+            { user: { email: "new@example.com", current_password: confirmed_user.password } },
+            headers
 
         expect(response.body).to include("Not Authenticated")
       end

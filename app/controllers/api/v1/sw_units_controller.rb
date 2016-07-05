@@ -1,12 +1,13 @@
 module Api::V1
   class SwUnitsController < ApplicationController
     before_action :authenticate_request!
-    before_action :get_sw_unit_class
-    before_action :get_sw_unit, only: [:show, :update, :destroy]
+    before_action :sw_unit_class
+    before_action :sw_unit, only: [:show, :update, :destroy]
     before_action :define_sort_params, only: [:index]
 
     def index
-      @sw_units = @sw_unit_class.all.order(@sort_by => @order).page(params[:page]).per(params[:per])
+      @sw_units = @sw_unit_class.all.order(@sort_by => @order).
+                    page(params[:page]).per(params[:per])
 
       render json: @sw_units,
              meta: pagination_dict(@sw_units),
@@ -55,8 +56,8 @@ module Api::V1
 
     private
 
-    def get_sw_unit_class
-      m = request.path.match /v1\/(\w{6,9})/
+    def sw_unit_class
+      m = request.path.match %r{v1\/(\w{6,9})}
 
       @sw_unit_class = Kernel.const_get(define_class_name(m[1]).capitalize)
     end
@@ -65,22 +66,34 @@ module Api::V1
       raw_name == "people" ? "person" : raw_name[0..-2]
     end
 
-    def get_sw_unit
+    def sw_unit
       @sw_unit = @sw_unit_class.find(params[:id])
     end
 
     def sw_unit_params
-      if @sw_unit_class.to_s == "Starship" 
-        params.require(:starship).permit(:name, :model, :manufacturer, :cost_in_credits, :length,
-          :max_atmosphering_speed, :crew, :passengers, :cargo_capacity, :consumables,
-          :hyperdrive_rating, :MGLT, :starship_class, :url)
+      if @sw_unit_class.to_s == "Starship"
+        starship_params
       elsif @sw_unit_class.to_s == "Planet"
-        params.require(:planet).permit(:name, :rotation_period, :orbital_period, :diameter,
-          :climate, :gravity, :terrain, :surface_water, :population, :url)
+        planet_params
       else
-        params.require(:person).permit(:name, :birth_year, :eye_color, :gender, :hair_color,
-          :height, :mass, :skin_color, :planet_id, :url)
+        person_params
       end
+    end
+
+    def starship_params
+      params.require(:starship).permit(:name, :model, :manufacturer, :cost_in_credits, :length,
+        :max_atmosphering_speed, :crew, :passengers, :cargo_capacity, :consumables, :MGLT,
+        :hyperdrive_rating, :starship_class, :url)
+    end
+
+    def planet_params
+      params.require(:planet).permit(:name, :rotation_period, :orbital_period, :diameter, :climate,
+        :gravity, :terrain, :surface_water, :population, :url)
+    end
+
+    def person_params
+      params.require(:person).permit(:name, :birth_year, :eye_color, :gender, :hair_color, :height,
+        :mass, :skin_color, :planet_id, :url)
     end
 
     def define_sort_params

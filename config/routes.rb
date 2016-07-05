@@ -1,5 +1,4 @@
 Rails.application.routes.draw do
-
   match "*any", to: "application#options", via: [:options]
 
   get "/index", to: "pages#index"

@@ -29,29 +29,32 @@ describe "User", type: :request do
         first_token = AuthToken.where(user_id: confirmed_user).last.content
 
         Timecop.travel(Time.now + 10.minutes)
-        
+
         log_in(confirmed_user)
 
         second_token = AuthToken.where(user_id: confirmed_user).last.content
 
         expect(first_token).to_not eq(second_token)
 
-        get v1_users_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": first_token }
+        get v1_users_path(confirmed_user), nil, "HTTP_ACCEPT": "application/json",
+                                                "AUTHORIZATION": first_token
 
         expect(response.body).to include(confirmed_user.first_name)
 
-        delete v1_logout_path, nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": second_token }
+        delete v1_logout_path, nil, "HTTP_ACCEPT": "application/json",
+                                    "AUTHORIZATION": second_token
 
         expect(response.body).to include("Logged out successfully")
 
-        get v1_users_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": first_token }
+        get v1_users_path(confirmed_user), nil, "HTTP_ACCEPT": "application/json",
+                                                "AUTHORIZATION": first_token
 
         expect(response.body).to include(confirmed_user.first_name)
       end
     end
 
     it "gets errors (invalid data for login)" do
-      post v1_login_path, { user: { email: confirmed_user.email, password: "wrongPassword" } }
+      post v1_login_path, user: { email: confirmed_user.email, password: "wrongPassword" }
 
       expect(response.body).to include("That email/password combination is not valid")
 
@@ -63,7 +66,7 @@ describe "User", type: :request do
 
   context "with an unconfirmed account" do
     it "gets a message to confirm email on login" do
-      post v1_login_path, { user: { email: user.email, password: user.password } }
+      post v1_login_path, user: { email: user.email, password: user.password }
 
       expect(response.body).to include("You have to confirm your email")
 
@@ -75,7 +78,7 @@ describe "User", type: :request do
 
   context "without an account" do
     it "gets errors on login" do
-      post v1_login_path, { user: { email: "wrong@email.com", password: "wrongPassword" } }
+      post v1_login_path, user: { email: "wrong@email.com", password: "wrongPassword" }
 
       expect(response.body).to include("That email/password combination is not valid")
 
@@ -106,17 +109,20 @@ describe "User", type: :request do
 
         expect(old_auth_token).to_not eq(new_auth_token)
 
-        get v1_users_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": new_auth_token }
+        get v1_users_path(confirmed_user), nil, "HTTP_ACCEPT": "application/json",
+                                                "AUTHORIZATION": new_auth_token
 
         expect(response.body).to include(User.last.email)
 
-        get v1_users_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": old_auth_token }
+        get v1_users_path(confirmed_user), nil, "HTTP_ACCEPT": "application/json",
+                                                "AUTHORIZATION": old_auth_token
 
         expect(response.body).to include(User.last.email)
 
         Timecop.travel(Time.now + 61.hours)
 
-        get v1_users_path(confirmed_user), nil, { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": new_auth_token }
+        get v1_users_path(confirmed_user), nil, "HTTP_ACCEPT": "application/json",
+                                                "AUTHORIZATION": new_auth_token
 
         expect(response.body).to include(User.last.email)
       end
@@ -124,7 +130,8 @@ describe "User", type: :request do
       it "but a client gets errors (ip-addresses don't match)" do
         log_in(confirmed_user)
 
-        AuthToken.last&.update_attribute(:content, AuthToken.encode({ user_id: confirmed_user.id, ip: "192.168.1.1" }))
+        AuthToken.last&.update_attribute(:content, AuthToken.encode(user_id: confirmed_user.id,
+                                                                    ip: "192.168.1.1"))
 
         Timecop.travel(Time.now + 61.hours)
 

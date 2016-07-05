@@ -1,5 +1,4 @@
 class AuthToken < ApplicationRecord
-
   belongs_to :user
 
   validates :content, uniqueness: true, length: { minimum: 1 }
@@ -19,5 +18,4 @@ class AuthToken < ApplicationRecord
 
     HashWithIndifferentAccess.new(decoded[0])
   end
-
 end
