@@ -44,9 +44,13 @@ module Api::V1
     def search
       @sw_units = @sw_unit_class.search_in_name(params[:query]).page(params[:page]).per(10)
 
-      render json: @sw_units,
-             meta: pagination_dict(@sw_units),
-             each_serializer: SwUnits::IndexSerializer
+      if @sw_units.any?
+        render json: @sw_units,
+               meta: pagination_dict(@sw_units),
+               each_serializer: SwUnits::IndexSerializer
+      else
+        render nothing: true, status: :not_found
+      end
     end
 
     private

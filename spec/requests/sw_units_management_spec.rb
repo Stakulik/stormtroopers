@@ -101,5 +101,23 @@ require "rails_helper"
         expect(response.status).to eq(401)
       end
     end
+
+    describe "#search" do
+      it "successfully - a #{unit_type} exists" do
+        log_in(confirmed_user)
+
+        get "#{units_path}/search?query=#{unit.name[0,2]}", nil, headers
+
+        expect(response.body).to include(unit.name)
+      end
+
+      it "returns 404 - such name doesn't exist" do
+        log_in(confirmed_user)
+
+        get "#{units_path}/search?query=zz", nil, headers
+
+        expect(response.status).to eq(404)
+      end
+    end
   end
 end
