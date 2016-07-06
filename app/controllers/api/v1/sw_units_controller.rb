@@ -82,18 +82,19 @@ module Api::V1
 
     def starship_params
       params.require(:starship).permit(:name, :model, :manufacturer, :cost_in_credits, :length,
-        :max_atmosphering_speed, :crew, :passengers, :cargo_capacity, :consumables, :MGLT,
-        :hyperdrive_rating, :starship_class, :url)
+                                       :max_atmosphering_speed, :crew, :passengers, :consumables,
+                                       :cargo_capacity, :MGLT, :hyperdrive_rating, :url,
+                                       :starship_class)
     end
 
     def planet_params
       params.require(:planet).permit(:name, :rotation_period, :orbital_period, :diameter, :climate,
-        :gravity, :terrain, :surface_water, :population, :url)
+                                     :gravity, :terrain, :surface_water, :population, :url)
     end
 
     def person_params
       params.require(:person).permit(:name, :birth_year, :eye_color, :gender, :hair_color, :height,
-        :mass, :skin_color, :planet_id, :url)
+                                     :mass, :skin_color, :planet_id, :url)
     end
 
     def define_sort_params
