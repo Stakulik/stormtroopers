@@ -18,6 +18,7 @@ end
 
 def filter_person_params(person_data)
   person_data["planet_id"] = Planet.where(url: person_data["homeworld"]).first.id rescue nil
+
   person_data["birth_year"] = person_data["birth_year"][0..-4]
 
   person_data.except("created", "edited", "films", "homeworld", "species", "vehicles", "starships")
@@ -37,7 +38,7 @@ end
 
 ["planets", "people", "starships"].each.with_index do |subject, i|
 
-  1.upto(i == 0 ? 61 : i == 1 ? 87 : 37) do |c|
+  1.upto(i == 0 ? 61 : i == 1 ? 88 : 77) do |c|
 
     raw_data = RestClient.get "https://swapi.co/api/#{subject}/#{c}/" rescue nil
 
