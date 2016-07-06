@@ -13,9 +13,8 @@ class ChangePlanets < ActiveRecord::Migration[5.0]
       SQL
     end
 
-    %w(rotation_period orbital_period diameter surface_water population).each do |property|
-      props.each_with_index do |property, i|
-        type_func = i < 4 ? ["integer", "cast_to_integer"] : ["bigint", "cast_to_bigint"]
+    %w(rotation_period orbital_period diameter surface_water population).each_with_index do |property, i|
+      type_func = i < 4 ? ["integer", "cast_to_integer"] : ["bigint", "cast_to_bigint"]
 
       execute <<-SQL
         alter table planets alter #{property} drop default;
@@ -24,7 +23,6 @@ class ChangePlanets < ActiveRecord::Migration[5.0]
 
         alter table planets alter #{property} set default 0;
       SQL
-      end
     end
   end
 end
