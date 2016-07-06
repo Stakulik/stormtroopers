@@ -14,7 +14,7 @@ class ChangePeopleBirthYear < ActiveRecord::Migration[5.0]
     execute <<-SQL
       alter table people alter birth_year drop default;
 
-      alter table people alter column birth_year type integer using cast_to_int(#{birth_year[0..-4]}, 0);
+      alter table people alter column birth_year type integer using cast_to_int(birth_year, 0);
 
       alter table people alter birth_year set default 0;
     SQL

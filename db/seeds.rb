@@ -18,6 +18,7 @@ end
 
 def filter_person_params(person_data)
   person_data["planet_id"] = Planet.where(url: person_data["homeworld"]).first.id rescue nil
+  person_data["birth_year"] = person_data["birth_year"][0..-4]
 
   person_data.except("created", "edited", "films", "homeworld", "species", "vehicles", "starships")
 end
