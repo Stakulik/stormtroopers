@@ -24,6 +24,7 @@ class ChangePlanets < ActiveRecord::Migration[5.0]
 
         alter table planets alter #{property} set default 0;
       SQL
+      end
     end
   end
 end
