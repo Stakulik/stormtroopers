@@ -40,6 +40,8 @@ module Api::V1
 
     def destroy
       @sw_unit.destroy
+
+      render json: @sw_unit, status: :ok, serializer: SwUnits::ShowSerializer
     end
 
     def search

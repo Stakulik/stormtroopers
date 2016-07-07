@@ -67,7 +67,8 @@ require "rails_helper"
 
         delete "#{units_path}/#{unit.id}", nil, headers
 
-        expect(response.status).to eq(204)
+        expect(response.status).to eq(200)
+        expect(response.body).to include(unit.name)
 
         get "#{units_path}/#{unit.id}", nil, headers
 
