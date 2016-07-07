@@ -3,14 +3,16 @@ module Api::V1
     before_action :authenticate_request!
     before_action :sw_unit_class
     before_action :sw_unit, only: [:show, :update, :destroy]
-    before_action :define_sort_params, only: [:index]
+    before_action :define_sort_params, only: [:index, :search]
 
     def index
+      check_overflow(@sw_unit_class.count) if params[:per]
+
       @sw_units = @sw_unit_class.all.order(@sort_by => @order).
-                    page(params[:page]).per(params[:per])
+                    page(params[:page]).per(params[:per] || 10)
 
       render json: @sw_units,
-             meta: pagination_dict(@sw_units),
+             meta: pagination_meta(@sw_units),
              each_serializer: SwUnits::IndexSerializer
     end
 
@@ -38,20 +40,19 @@ module Api::V1
 
     def destroy
       @sw_unit.destroy
-
-      render nothing: true, status: :no_content
     end
 
     def search
-      @sw_units = @sw_unit_class.search_in_name(params[:query]).page(params[:page]).per(10)
+      found_sw_units = @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
 
-      if @sw_units.any?
-        render json: @sw_units,
-               meta: pagination_dict(@sw_units),
-               each_serializer: SwUnits::IndexSerializer
-      else
-        render nothing: true, status: :not_found
-      end
+      return render nothing: true, status: :not_found if found_sw_units.empty?
+
+      check_overflow(found_sw_units.count) if params[:per]
+
+      @sw_units = found_sw_units.page(params[:page]).per(params[:per] || 10)
+
+      render json: @sw_units, meta: pagination_meta(@sw_units),
+             each_serializer: SwUnits::IndexSerializer
     end
 
     private
@@ -103,7 +104,7 @@ module Api::V1
       @order = (params[:order] || "asc").to_sym
     end
 
-    def pagination_dict(object)
+    def pagination_meta(object)
       {
         current_page: object.current_page,
         next_page: object.next_page,
@@ -111,6 +112,10 @@ module Api::V1
         total_pages: object.total_pages,
         total_count: object.total_count
       }
+    end
+
+    def check_overflow(amount)
+      params[:page] = 1 if params[:page].to_i > (amount / params[:per].to_f).ceil
     end
   end
 end

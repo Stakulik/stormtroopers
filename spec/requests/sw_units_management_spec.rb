@@ -120,20 +120,20 @@ require "rails_helper"
 
           log_in(confirmed_user)
 
-          get "#{units_path}/?page=1&&per=4", nil, headers
+          get "#{units_path}/?page=1&per=4", nil, headers
 
           expect(response.body).to include("name")
           expect(response.body).to include("next_page")
           expect(response.body).to include('"prev_page":null')
           expect(response.body).to include('"total_pages":6')
 
-          get "#{units_path}/?page=2&&per=10", nil, headers
+          get "#{units_path}/?page=2&per=10", nil, headers
 
           expect(response.body).to include("next_page")
           expect(response.body).to include("prev_page")
           expect(response.body).to include('"total_pages":3')
 
-          get "#{units_path}/?page=3&&per=10", nil, headers
+          get "#{units_path}/?page=3&per=10", nil, headers
 
           expect(response.body).to include("total_count")
           expect(response.body).to include('"next_page":null')
@@ -147,17 +147,17 @@ require "rails_helper"
 
         log_in(confirmed_user)
 
-        get "#{units_path}/?page=1&&per=10&&sort_by=name", nil, headers # default order=asc
+        get "#{units_path}/?page=1&per=10&sort_by=name", nil, headers # default order=asc
 
         expect(response.body).to include("aa")
         expect(response.body).to_not include("mm")
 
-        get "#{units_path}/?page=2&&per=10&&sort_by=name&&order=asc", nil, headers
+        get "#{units_path}/?page=2&per=10&sort_by=name&order=asc", nil, headers
 
         expect(response.body).to include("mm")
         expect(response.body).to_not include("aa")
 
-        get "#{units_path}/?page=1&&per=10&&sort_by=name&&order=desc", nil, headers
+        get "#{units_path}/?page=1&per=10&sort_by=name&order=desc", nil, headers
 
         expect(response.body).to include("mm")
         expect(response.body).to_not include("aa")

@@ -5,12 +5,9 @@ class SwUnits::IndexSerializer < SwUnitSerializer
   end
 
   def filter_main_params(object)
-    params =
-      if object.class.to_s == "Person"
-        %w(id name birth_year)
-      else
-        %w(id name)
-      end
+    params = %w(id name created_at updated_at)
+
+    params << "birth_year" if object.class.to_s == "Person" # не выдает!
 
     object.attributes.select { |key, v| params.include?(key) }
   end
