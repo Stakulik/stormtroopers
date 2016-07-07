@@ -26,9 +26,7 @@ require "rails_helper"
         expect(response.status).to eq(422)
 
         post units_path.to_s,
-             { "#{unit_type}": attributes_for(unit_type,
-                                              name: "My #{unit_type}",
-                                              planet_id: planet.id) },
+             { "#{unit_type}": attributes_for(unit_type, name: "My #{unit_type}", planet_id: planet.id) },
              headers
 
         expect(response.status).to eq(201)

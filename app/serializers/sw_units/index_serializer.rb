@@ -9,6 +9,6 @@ class SwUnits::IndexSerializer < SwUnitSerializer
 
     params << "birth_year" if object.class.to_s == "Person"
 
-    object.attributes.select { |key, v| params.include?(key) }
+    object.attributes.select { |key, _v| params.include?(key) }
   end
 end

@@ -13,8 +13,6 @@ module Api::V1
     def create
       user = User.new(user_params)
 
-      user.confirmation_token = AuthToken.encode({}, 1440)
-
       if user.save
         RegistrationMailer.confirmation_instructions(user).deliver_now
 
@@ -75,18 +73,17 @@ module Api::V1
     end
 
     def update_password
+      user_params[:reset_password_token] = nil
+
       unless @user&.update_attributes(user_params)
         return render json: { errors: @user.errors }, status: :unprocessable_entity
       end
 
-      user_params[:reset_password_token] = nil
-
       AuthToken.where(user_id: @user).destroy_all
 
-      render json:
-               { success: "Your password has been changed",
-                 auth_token: @user.auth_tokens.
-                   create(content: AuthToken.encode(user_id: @user.id, ip: request.remote_ip)) },
+      render json: { success: "Your password has been changed",
+                     auth_token: @user.auth_tokens.
+                       create(content: AuthToken.encode(user_id: @user.id, ip: request.remote_ip)) },
              status: :ok
     end
 
@@ -94,7 +91,7 @@ module Api::V1
 
     def user_params
       params.require(:user).permit(:first_name, :last_name, :email, :password, :confirmed_at,
-        :password_confirmation, :confirmation_token, :current_password)
+                                   :password_confirmation, :confirmation_token, :current_password)
     end
 
     def find_user_by_email
@@ -116,8 +113,7 @@ module Api::V1
       check = User.find_by(email: @current_user.email)&.authenticate(user_params[:current_password])
 
       unless check
-        return render json: { errors: "The current password is incorrect" },
-                      status: :unprocessable_entity
+        return render json: { errors: "The current password is incorrect" }, status: :unprocessable_entity
       end
     end
   end

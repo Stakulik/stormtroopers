@@ -30,10 +30,12 @@ guard :rspec, cmd: "zeus rspec" do
   rails = dsl.rails(view_extensions: %w(erb haml slim))
 
   watch(%r{^app/(.+)\.rb$}) { |m| "spec/#{m[1]}_spec.rb" }
-  watch(rails.app_controller)  { "spec/requests" }
-  watch(%r{^app/controllers/api/v1/(.+)_(controller)\.rb$}) { |m| "spec/requests/#{m[1]}_management_spec.rb" }
-  watch("app/controllers/api/v1/people_controller.rb")  { "spec/requests/person_management_spec.rb" }
-  watch("app/controllers/api/v1/users_controller.rb") do |m|
+  watch(rails.app_controller) { "spec/requests" }
+  watch(%r{^app/controllers/api/v1/(.+)_(controller)\.rb$}) do |m|
+    "spec/requests/#{m[1]}_management_spec.rb"
+  end
+  watch("app/controllers/api/v1/people_controller.rb") { "spec/requests/person_management_spec.rb" }
+  watch("app/controllers/api/v1/users_controller.rb") do
     [
       rspec.spec.call("requests/user_management"),
       rspec.spec.call("requests/user_forgot_password")
@@ -41,7 +43,7 @@ guard :rspec, cmd: "zeus rspec" do
   end
 
   # Rails config changes
-  watch(rails.routes)          { "#{rspec.spec_dir}/requests" }
+  watch(rails.routes) { "#{rspec.spec_dir}/requests" }
 end
 
 guard :rails, zeus: true, daemon: true do

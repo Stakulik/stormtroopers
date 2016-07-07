@@ -1,5 +1,4 @@
 class RegistrationMailer < ApplicationMailer
-
   def confirmation_instructions(user)
     @user = user
 
@@ -11,5 +10,4 @@ class RegistrationMailer < ApplicationMailer
 
     mail(to: @user.email, subject: "Reset password instructions")
   end
-
 end

@@ -11,8 +11,7 @@ module Api::V1
       @sw_units = @sw_unit_class.all.order(@sort_by => @order).
                     page(params[:page]).per(params[:per] || 10)
 
-      render json: @sw_units,
-             meta: pagination_meta(@sw_units),
+      render json: @sw_units, meta: pagination_meta(@sw_units),
              each_serializer: SwUnits::IndexSerializer
     end
 
@@ -106,6 +105,10 @@ module Api::V1
       @order = (params[:order] || "asc").to_sym
     end
 
+    def check_overflow(amount)
+      params[:page] = 1 if params[:page].to_i > (amount / params[:per].to_f).ceil
+    end
+
     def pagination_meta(object)
       {
         current_page: object.current_page,
@@ -114,10 +117,6 @@ module Api::V1
         total_pages: object.total_pages,
         total_count: object.total_count
       }
-    end
-
-    def check_overflow(amount)
-      params[:page] = 1 if params[:page].to_i > (amount / params[:per].to_f).ceil
     end
   end
 end
