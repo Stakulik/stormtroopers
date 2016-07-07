@@ -11,7 +11,7 @@ class User < ApplicationRecord
   validates :last_name, length: { in: 3..30 }
   validates :password, length: { in: 6..20 }, on: :create
   validates :password, length: { in: 6..20 }, on: :update, unless: -> (user) { user.current_password }
- 
+
   has_secure_password
 
   before_save do

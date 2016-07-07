@@ -8,5 +8,4 @@ class Users::ShowSerializer < UserSerializer
   def current_password
     ""
   end
-
 end

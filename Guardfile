@@ -20,7 +20,7 @@ guard :rspec, cmd: "zeus rspec" do
   watch("spec/rails_helper.rb") { rspec.spec_dir }
   watch(rspec.spec_support) { "spec/requests" }
   watch(%r{^spec/factories/(.+)\.rb$}) { |m| "spec/models/#{m[1][0..-2]}_spec.rb" }
-  watch(%r{^spec/factories/people.rb$}) { |m| "spec/models/person_spec.rb" }
+  watch(%r{^spec/factories/people.rb$}) { "spec/models/person_spec.rb" }
 
   # Ruby files
   ruby = dsl.ruby

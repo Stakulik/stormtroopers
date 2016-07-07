@@ -1,5 +1,4 @@
 class SwUnits::IndexSerializer < SwUnitSerializer
-
   def attributes
     filter_main_params(object)
   end
