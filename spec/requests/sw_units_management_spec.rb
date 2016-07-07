@@ -142,7 +142,7 @@ require "rails_helper"
       end
     end
 
-    describe "filter" do
+    describe "filter and order" do
       it "by name" do
         ("a".."m").each { |l| create(unit_type, name: l * 2) }
 
