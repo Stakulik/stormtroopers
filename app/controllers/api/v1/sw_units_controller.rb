@@ -44,7 +44,13 @@ module Api::V1
     end
 
     def search
-      found_sw_units = @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
+      found_sw_units =
+        if params[:query].empty?
+          @sw_unit_class.all.order(@sort_by => @order).
+            page(params[:page]).per(params[:per] || 10)
+        else
+          @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
+        end
 
       return render nothing: true, status: :not_found if found_sw_units.empty?
 
