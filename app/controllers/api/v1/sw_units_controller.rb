@@ -52,7 +52,7 @@ module Api::V1
           @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
         end
 
-      return render nothing: true, status: :not_found if found_sw_units.empty?
+      return render json: {sw_units: nil}, status: :ok if found_sw_units.empty?
 
       check_overflow(found_sw_units.count) if params[:per]
 
