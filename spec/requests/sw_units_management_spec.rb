@@ -172,12 +172,30 @@ require "rails_helper"
         expect(response.body).to include(unit.name)
       end
 
-      it "returns 404 - such name doesn't exist" do
-        log_in(confirmed_user)
+      describe "returns the entire collection" do
+        let!(:collection) { 22.times { create(unit_type) } }
 
-        get "#{units_path}/search?query=zz", nil, headers
+        it "- such name doesn't exist" do
+          log_in(confirmed_user)
 
-        expect(response.status).to eq(404)
+          get "#{units_path}/search?query=zz", nil, headers
+
+          expect(response.body).to include('"next_page":2')
+          expect(response.body).to include('"prev_page":null')
+          expect(response.body).to include('"total_pages":3')
+          expect(response.body).to include('"total_count":23')
+        end
+
+        it "- an empty query" do
+          log_in(confirmed_user)
+
+          get "#{units_path}/search?query=", nil, headers
+
+          expect(response.body).to include('"next_page":2')
+          expect(response.body).to include('"prev_page":null')
+          expect(response.body).to include('"total_pages":3')
+          expect(response.body).to include('"total_count":23')
+        end
       end
     end
   end

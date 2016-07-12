@@ -44,19 +44,17 @@ module Api::V1
     end
 
     def search
-      found_sw_units =
-        if params[:query].empty?
-          @sw_unit_class.all.order(@sort_by => @order).
-            page(params[:page]).per(params[:per] || 10)
-        else
-          @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
-        end
+      unless params[:query].empty?
+        @sw_units = @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
+      end
 
-      return render json: {sw_units: nil}, status: :ok if found_sw_units.empty?
+      if params[:query].empty? || @sw_units.empty?
+        @sw_units = @sw_unit_class.all.order(@sort_by => @order)
+      end
 
-      check_overflow(found_sw_units.count) if params[:per]
+      check_overflow(@sw_units.count) if params[:per]
 
-      @sw_units = found_sw_units.page(params[:page]).per(params[:per] || 10)
+      @sw_units = @sw_units.page(params[:page]).per(params[:per] || 10)
 
       render json: @sw_units, meta: pagination_meta(@sw_units),
              each_serializer: SwUnits::IndexSerializer
