@@ -48,7 +48,7 @@ module Api::V1
         @sw_units = @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
       end
 
-      @sw_units = @sw_unit_class.all if params[:query].empty?
+      @sw_units = @sw_unit_class.all.order(@sort_by => @order) if params[:query].empty?
 
       check_overflow(@sw_units.count) if params[:per]
 
