@@ -16,12 +16,14 @@ module Api::V1
     end
 
     def create
-      sw_unit = @sw_unit_class.new(sw_unit_params)
+      @sw_unit = @sw_unit_class.new(sw_unit_params)
 
-      if sw_unit.save
-        render json: sw_unit, status: :created, serializer: SwUnits::ShowSerializer
+      if @sw_unit.save
+#       add_related_object if @sw_unit_class != "Planet"
+
+        render json: @sw_unit, status: :created, serializer: SwUnits::ShowSerializer
       else
-        render json: sw_unit.errors, status: :unprocessable_entity
+        render json: @sw_unit.errors, status: :unprocessable_entity
       end
     end
 
@@ -88,7 +90,7 @@ module Api::V1
       params.require(:starship).permit(:name, :model, :manufacturer, :cost_in_credits, :length,
                                        :max_atmosphering_speed, :crew, :passengers, :consumables,
                                        :cargo_capacity, :MGLT, :hyperdrive_rating, :url,
-                                       :starship_class)
+                                       :starship_class, pilots_ids: [])
     end
 
     def planet_params
@@ -98,7 +100,7 @@ module Api::V1
 
     def person_params
       params.require(:person).permit(:name, :birth_year, :eye_color, :gender, :hair_color, :height,
-                                     :mass, :skin_color, :planet_id, :url)
+                                     :mass, :skin_color, :planet_id, :url, starships_ids: [])
     end
 
     def define_sort_params
@@ -119,6 +121,14 @@ module Api::V1
         total_pages: object.total_pages,
         total_count: object.total_count
       }
+    end
+
+    def add_related_object
+      if @sw_unit_class == "Person" && !starships_ids.empty?
+        starships_ids.each { |ship_id| Starship.find(ship_id) << @sw_unit }
+      elsif @sw_unit_class == "Starship" && !pilots_ids.empty?
+        pilots_ids.each { |pilot_id| Person.find(pilot_id) << @sw_unit }
+      end
     end
   end
 end
