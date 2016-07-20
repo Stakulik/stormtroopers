@@ -7,4 +7,10 @@ class Person < ApplicationRecord
 
   validates_presence_of :name, :birth_year, :eye_color, :gender, :hair_color, :height, :mass, :url,
                         :skin_color
+
+  def initialize
+    super
+
+    self.url = "swapi.co"
+  end
 end
