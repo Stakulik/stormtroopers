@@ -8,8 +8,9 @@ module Api::V1
     def index
       check_overflow(@sw_unit_class.count) if params[:per]
 
-      @sw_units = @sw_unit_class.all.order(@sort_by => @order).
-                    page(params[:page]).per(params[:per] || 10)
+      @sw_units = @sw_unit_class.all.order(@sort_by => @order)
+
+      @sw_units = @sw_units.page(params[:page]).per(params[:per]) if params[:per]
 
       render json: @sw_units, meta: pagination_meta(@sw_units),
              each_serializer: SwUnits::IndexSerializer
@@ -54,7 +55,7 @@ module Api::V1
 
       check_overflow(@sw_units.count) if params[:per]
 
-      @sw_units = @sw_units.page(params[:page]).per(params[:per] || 10)
+      @sw_units = @sw_units.page(params[:page]).per(params[:per]) if params[:per]
 
       render json: @sw_units, meta: pagination_meta(@sw_units), status: :ok,
              each_serializer: SwUnits::IndexSerializer
@@ -114,13 +115,15 @@ module Api::V1
     end
 
     def pagination_meta(object)
-      {
-        current_page: object.current_page,
-        next_page: object.next_page,
-        prev_page: object.prev_page,
-        total_pages: object.total_pages,
-        total_count: object.total_count
-      }
+      if params[:per]
+        {
+          current_page: object.current_page,
+          next_page: object.next_page,
+          prev_page: object.prev_page,
+          total_pages: object.total_pages,
+          total_count: object.total_count
+        }
+      end
     end
 
     def add_related_object
