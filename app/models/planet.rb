@@ -7,9 +7,5 @@ class Planet < ApplicationRecord
   validates_presence_of :name, :rotation_period, :orbital_period, :climate, :diameter, :gravity,
                         :surface_water, :terrain, :population, :url
 
-  def initialize
-    super
-
-    self.url = "swapi.co"
-  end
+  before_validation { self.url ||= "swapi.co" }
 end

@@ -8,9 +8,5 @@ class Starship < ApplicationRecord
                         :passengers, :cargo_capacity, :consumables, :hyperdrive_rating, :MGLT,
                         :starship_class, :length, :crew, :url
 
-  def initialize
-    super
-
-    self.url = "swapi.co"
-  end
+  before_validation { self.url ||= "swapi.co" }
 end
