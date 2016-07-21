@@ -48,9 +48,10 @@ module Api::V1
 
       user.save(validate: false)
 
+      user.auth_tokens.create(content: AuthToken.encode(user_id: user.id, ip: request.remote_ip))
+
       render json: { success: "Thanks for signing up for Stormtroopers application",
-                     auth_token: user.auth_tokens.
-                       create(content: AuthToken.encode(user_id: user.id, ip: request.remote_ip)) },
+                     auth_token: user.auth_tokens.last },
              status: :ok
     end
 
