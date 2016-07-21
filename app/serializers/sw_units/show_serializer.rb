@@ -1,5 +1,6 @@
 class SwUnits::ShowSerializer < SwUnitSerializer
   def attributes
+
     unit_attributes = {}
 
     unit_attributes["#{object.class.to_s.downcase}"] = filter_additional_params(object)
@@ -14,6 +15,7 @@ class SwUnits::ShowSerializer < SwUnitSerializer
   end
 
   def add_related_objects(unit_attributes)
+
     related_objects = get_related_objects(unit_attributes["#{object.class.to_s.downcase}"])
 
     unit_attributes["#{related_objects[0..-2]}_ids"] = object.send(related_objects).map(&:id)

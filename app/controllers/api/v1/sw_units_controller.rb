@@ -20,7 +20,7 @@ module Api::V1
       @sw_unit = @sw_unit_class.new(sw_unit_params)
 
       if @sw_unit.save
-#       add_related_object if @sw_unit_class != "Planet"
+        add_related_object if @sw_unit_class != "Planet"
 
         render json: @sw_unit, status: :created, serializer: SwUnits::ShowSerializer
       else
@@ -91,7 +91,7 @@ module Api::V1
       params.require(:starship).permit(:name, :model, :manufacturer, :cost_in_credits, :length,
                                        :max_atmosphering_speed, :crew, :passengers, :consumables,
                                        :cargo_capacity, :MGLT, :hyperdrive_rating, :url,
-                                       :starship_class, pilots_ids: [])
+                                       :starship_class)
     end
 
     def planet_params
@@ -101,7 +101,7 @@ module Api::V1
 
     def person_params
       params.require(:person).permit(:name, :birth_year, :eye_color, :gender, :hair_color, :height,
-                                     :mass, :skin_color, :planet_id, :url, starships_ids: [])
+                                     :mass, :skin_color, :planet_id, :url)
     end
 
     def define_sort_params
@@ -127,10 +127,10 @@ module Api::V1
     end
 
     def add_related_object
-      if @sw_unit_class == "Person" && !starships_ids.empty?
-        starships_ids.each { |ship_id| Starship.find(ship_id) << @sw_unit }
-      elsif @sw_unit_class == "Starship" && !pilots_ids.empty?
-        pilots_ids.each { |pilot_id| Person.find(pilot_id) << @sw_unit }
+      if @sw_unit_class.to_s == "Person" && !params.dig(:person, :starships_ids)&.empty?
+        params.dig(:person, :starships_ids).each { |ship_id| Starship.find(ship_id).pilots << @sw_unit }
+      elsif @sw_unit_class.to_s == "Starship" && !params.dig(:starship, :pilots_ids)&.empty?
+        params.dig(:starship, :pilots_ids).each { |pilot_id| Person.find(pilot_id).starships << @sw_unit }
       end
     end
   end
