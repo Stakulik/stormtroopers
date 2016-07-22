@@ -3,7 +3,7 @@
 %p Thanks for creating an account on Stormtroopers. We're ready to confirm your account. All we need to do is make sure this is the correct email address.
 
 / %p= link_to "Confirm my account", v1_confirmation_url(confirmation_token: @user.confirmation_token)
-%p= link_to "Confirm my account", "http://starwars.wearevolt.com/confirmation?confirmation_token=#{@user.confirmation_token}"
+%p= link_to "Confirm my account", "http://localhost:8080/confirmation?confirmation_token=#{@user.confirmation_token}"
 
 %p You must confirm your account for 24 hours.
 
