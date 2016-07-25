@@ -31,7 +31,7 @@ class SwUnits::ShowSerializer < SwUnitSerializer
 
   def define_additional_params(object)
     if object.class.to_s == "Person"
-      %w(id name birth_year eye_color gender hair_color height mass skin_color created_at
+      %w(id name birth_year eye_color gender hair_color height mass skin_color planet_id created_at
          updated_at)
     elsif object.class.to_s == "Planet"
       %w(id name rotation_period orbital_period climate diameter gravity surface_water terrain
