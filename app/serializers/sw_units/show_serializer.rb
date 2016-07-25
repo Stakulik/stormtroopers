@@ -24,7 +24,7 @@ class SwUnits::ShowSerializer < SwUnitSerializer
       filter_additional_params(ro)
     end
 
-    unit_attributes["homeworld"] = Planet.find(object.planet_id) if object.class.to_s == "Person"
+    unit_attributes["planets"] = Planet.find(object.planet_id) if object.class.to_s == "Person"
 
     unit_attributes
   end
