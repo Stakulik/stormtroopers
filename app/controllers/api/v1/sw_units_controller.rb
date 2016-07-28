@@ -21,7 +21,6 @@ module Api::V1
 
       if @sw_unit.save
         add_related_object if @sw_unit_class != "Planet"
-
         render json: @sw_unit, status: :created, serializer: SwUnits::ShowSerializer
       else
         render json: @sw_unit.errors, status: :unprocessable_entity
@@ -128,9 +127,9 @@ module Api::V1
 
     def add_related_object
       if @sw_unit_class.to_s == "Person" && !params.dig(:person, :starships_ids)&.empty?
-        params.dig(:person, :starships_ids).each { |ship_id| Starship.find(ship_id).pilots << @sw_unit }
+        params.dig(:person, :starships_ids).try(:each) { |ship_id| Starship.find(ship_id).try(:pilots) << @sw_unit }
       elsif @sw_unit_class.to_s == "Starship" && !params.dig(:starship, :pilots_ids)&.empty?
-        params.dig(:starship, :pilots_ids).each { |pilot_id| Person.find(pilot_id).starships << @sw_unit }
+        params.dig(:starship, :pilots_ids).try(:each) { |pilot_id| Person.find(pilot_id).try(:starships) << @sw_unit }
       end
     end
   end
