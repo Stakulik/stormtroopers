@@ -33,6 +33,8 @@ module Api::V1
 
     def update
       if @sw_unit.update(sw_unit_params)
+        add_related_object if @sw_unit_class != "Planet"
+
         render json: @sw_unit, status: :ok, serializer: SwUnits::ShowSerializer
       else
         render json: @sw_unit.errors, status: :unprocessable_entity
@@ -125,10 +127,21 @@ module Api::V1
       end
     end
 
-    def add_related_object
+    def add_related_object      
       if @sw_unit_class.to_s == "Person" && !params.dig(:person, :starships_ids)&.empty?
+        if params[:action] == "update"
+          @sw_unit.starships.ids.each do |del_id|
+            @sw_unit.starships.delete(Starship.find(del_id))
+          end
+        end      
         params.dig(:person, :starships_ids).try(:each) { |ship_id| Starship.find(ship_id).try(:pilots) << @sw_unit }
       elsif @sw_unit_class.to_s == "Starship" && !params.dig(:starship, :pilots_ids)&.empty?
+        if params[:action] == "update"
+          @sw_unit.pilots.ids.each do |del_id|
+            @sw_unit.pilots.delete(Starship.find(del_id))
+          end
+        end  
+        @sw_unit.pilots.try(:clear) if params[:action] == "update"
         params.dig(:starship, :pilots_ids).try(:each) { |pilot_id| Person.find(pilot_id).try(:starships) << @sw_unit }
       end
     end
