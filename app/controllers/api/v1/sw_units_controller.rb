@@ -143,8 +143,6 @@ module Api::V1
         "starships"
       elsif @sw_unit_class.to_s == "Starship" && !params.dig(:starship, :pilots_ids)&.empty?
         "pilots"
-      else
-        nil
       end
     end
 
