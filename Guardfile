@@ -42,6 +42,8 @@ guard :rspec, cmd: "zeus rspec" do
     ]
   end
 
+  watch(%r{^app/serializers/(.+)\.rb$}) { "spec/requests" }
+
   # Rails config changes
   watch(rails.routes) { "#{rspec.spec_dir}/requests" }
 end

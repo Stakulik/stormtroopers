@@ -20,7 +20,8 @@ module Api::V1
       @sw_unit = @sw_unit_class.new(sw_unit_params)
 
       if @sw_unit.save
-        add_related_object if @sw_unit_class != "Planet"
+        add_related_objects if @sw_unit_class != "Planet"
+
         render json: @sw_unit, status: :created, serializer: SwUnits::ShowSerializer
       else
         render json: @sw_unit.errors, status: :unprocessable_entity
@@ -33,7 +34,7 @@ module Api::V1
 
     def update
       if @sw_unit.update(sw_unit_params)
-        add_related_object if @sw_unit_class != "Planet"
+        add_related_objects if @sw_unit_class != "Planet"
 
         render json: @sw_unit, status: :ok, serializer: SwUnits::ShowSerializer
       else
@@ -116,33 +117,46 @@ module Api::V1
     end
 
     def pagination_meta(object)
-      if params[:per]
-        {
-          current_page: object.current_page,
-          next_page: object.next_page,
-          prev_page: object.prev_page,
-          total_pages: object.total_pages,
-          total_count: object.total_count
-        }
+      return nil unless params[:per]
+
+      {
+        current_page: object.current_page,
+        next_page: object.next_page,
+        prev_page: object.prev_page,
+        total_pages: object.total_pages,
+        total_count: object.total_count
+      }
+    end
+
+    def add_related_objects
+      collection_name = define_collection_name
+
+      return unless collection_name
+
+      clear_collection(collection_name) if params[:action] == "update"
+
+      refill_collection(collection_name)
+    end
+
+    def define_collection_name
+      if @sw_unit_class.to_s == "Person" && !params.dig(:person, :starships_ids)&.empty?
+        "starships"
+      elsif @sw_unit_class.to_s == "Starship" && !params.dig(:starship, :pilots_ids)&.empty?
+        "pilots"
+      else
+        nil
       end
     end
 
-    def add_related_object      
-      if @sw_unit_class.to_s == "Person" && !params.dig(:person, :starships_ids)&.empty?
-        if params[:action] == "update"
-          @sw_unit.starships.ids.each do |del_id|
-            @sw_unit.starships.delete(Starship.find(del_id))
-          end
-        end      
-        params.dig(:person, :starships_ids).try(:each) { |ship_id| Starship.find(ship_id).try(:pilots) << @sw_unit }
-      elsif @sw_unit_class.to_s == "Starship" && !params.dig(:starship, :pilots_ids)&.empty?
-        if params[:action] == "update"
-          @sw_unit.pilots.ids.each do |del_id|
-            @sw_unit.pilots.delete(Starship.find(del_id))
-          end
-        end  
-        @sw_unit.pilots.try(:clear) if params[:action] == "update"
-        params.dig(:starship, :pilots_ids).try(:each) { |pilot_id| Person.find(pilot_id).try(:starships) << @sw_unit }
+    def clear_collection(collection_name)
+      @sw_unit.send(collection_name)&.clear
+    end
+
+    def refill_collection(collection_name)
+      related_class = (@sw_unit_class == Person) ? Starship : Person
+
+      params.dig(@sw_unit_class.to_s.downcase, "#{collection_name}_ids")&.each do |unit_id|
+        @sw_unit.send(collection_name) << related_class.find(unit_id)
       end
     end
   end
