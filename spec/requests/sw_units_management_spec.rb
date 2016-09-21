@@ -8,6 +8,7 @@ require "rails_helper"
     let(:planet) { create(:planet) } # person requires a homeworld
     let(:confirmed_user) { create(:user, :confirmed) }
     let(:headers) { { "HTTP_ACCEPT": "application/json", "AUTHORIZATION": AuthToken.last&.content } }
+    let(:create_collection) { 22.times { create(unit_type, name: Faker::StarWars.character) } }
 
     context "authenticated user" do
       it "can see all #{unit_type}s" do
@@ -164,7 +165,7 @@ require "rails_helper"
     end
 
     describe "#search" do
-      it "successfully - a #{unit_type} exists" do
+      it "returns #{unit_type}s if any found" do
         log_in(confirmed_user)
 
         get "#{units_path}/search?query=#{unit.name[0, 2]}", nil, headers
@@ -172,29 +173,30 @@ require "rails_helper"
         expect(response.body).to include(unit.name)
       end
 
-      describe "returns the entire collection" do
-        let!(:collection) { 22.times { create(unit_type) } }
+      describe "returns an empty array" do
+        it "if found nothing" do
+          create_collection
 
-        it "- such name doesn't exist" do
           log_in(confirmed_user)
 
           get "#{units_path}/search?query=zz", nil, headers
 
-          expect(response.body).to include('"next_page":2')
-          expect(response.body).to include('"prev_page":null')
-          expect(response.body).to include('"total_pages":3')
-          expect(response.body).to include('"total_count":23')
+          expect(response.body).to include('[]')
         end
+      end
 
-        it "- an empty query" do
+      describe "returns the entire collection" do
+        it "if a query is empty" do
+          create_collection
+
           log_in(confirmed_user)
 
           get "#{units_path}/search?query=", nil, headers
 
-          expect(response.body).to include('"next_page":2')
-          expect(response.body).to include('"prev_page":null')
-          expect(response.body).to include('"total_pages":3')
-          expect(response.body).to include('"total_count":23')
+          expect(unit_class.first.name).to_not eq(unit_class.last.name)
+
+          expect(response.body).to include(unit_class.first.name)
+          expect(response.body).to include(unit_class.last.name)
         end
       end
     end

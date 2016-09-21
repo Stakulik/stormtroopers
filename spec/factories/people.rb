@@ -3,7 +3,7 @@ require "faker"
 FactoryGirl.define do
   factory :person do
     name          Faker::StarWars.character
-    birth_year    "19BBY"
+    birth_year    Faker::Number.digit << "BBY"
     eye_color     Faker::Color.color_name
     gender        "male"
     hair_color    Faker::Color.color_name
