@@ -1,8 +1,6 @@
 Rails.application.routes.draw do
   match "*any", to: "application#options", via: [:options]
 
-  get "/index", to: "pages#index"
-
   scope module: "api" do
     namespace :v1 do
       post "/login", to: "sessions#create"
