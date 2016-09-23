@@ -1,18 +1,14 @@
 module Api::V1
   class SwUnitsController < ApplicationController
     before_action :authenticate_request!
-    before_action :sw_unit_class
-    before_action :sw_unit, only: [:show, :update, :destroy]
-    before_action :define_sort_params, only: [:index, :search]
+    before_action :set_sw_unit_class
+    before_action :set_sw_unit, only: [:show, :update, :destroy]
+    before_action :set_sw_units, only: [:index, :search]
 
     def index
-      check_overflow(@sw_unit_class.count) if params[:per]
+      prepare_sw_units_for_rendering if params[:per]
 
-      @sw_units = @sw_unit_class.all.order(@sort_by => @order)
-
-      @sw_units = @sw_units.page(params[:page]).per(params[:per]) if params[:per]
-
-      render json: @sw_units, meta: pagination_meta(@sw_units),
+      render json: @sw_units, meta: pagination_meta(@sw_units), status: :ok,
              each_serializer: SwUnits::IndexSerializer
     end
 
@@ -49,15 +45,7 @@ module Api::V1
     end
 
     def search
-      unless params[:query].empty?
-        @sw_units = @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
-      end
-
-      @sw_units = @sw_unit_class.all.order(@sort_by => @order) if params[:query].empty?
-
-      check_overflow(@sw_units.count) if params[:per]
-
-      @sw_units = @sw_units.page(params[:page]).per(params[:per]) if params[:per]
+      prepare_sw_units_for_rendering if params[:per]
 
       render json: @sw_units, meta: pagination_meta(@sw_units), status: :ok,
              each_serializer: SwUnits::IndexSerializer
@@ -65,7 +53,7 @@ module Api::V1
 
     private
 
-    def sw_unit_class
+    def set_sw_unit_class
       m = request.path.match %r{v1\/(\w{6,9})}
 
       @sw_unit_class = Kernel.const_get(define_class_name(m[1]).capitalize)
@@ -75,8 +63,47 @@ module Api::V1
       raw_name == "people" ? "person" : raw_name[0..-2]
     end
 
-    def sw_unit
+    def set_sw_unit
       @sw_unit = @sw_unit_class.find(params[:id])
+    end
+
+    def set_sw_units
+      set_sort_params
+
+      @sw_units =
+        if params[:action] == "index" || params[:query].empty?
+          @sw_unit_class.all.order(@sort_by => @order)
+        else
+          @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
+        end
+    end
+
+    def set_sort_params
+      @sort_by = (params[:sort_by] || "id").to_sym
+
+      @order = (params[:order] || "asc").to_sym
+    end
+
+    def prepare_sw_units_for_rendering
+      prevent_overflow(@sw_units.count)
+
+      @sw_units = @sw_units.page(params[:page]).per(params[:per])
+    end
+
+    def prevent_overflow(amount)
+      params[:page] = 1 if params[:page].to_i > (amount / params[:per].to_f).ceil
+    end
+
+    def pagination_meta(object)
+      return nil unless params[:per]
+
+      {
+        current_page: object.current_page,
+        next_page: object.next_page,
+        prev_page: object.prev_page,
+        total_pages: object.total_pages,
+        total_count: object.total_count
+      }
     end
 
     def sw_unit_params
@@ -104,28 +131,6 @@ module Api::V1
     def person_params
       params.require(:person).permit(:name, :birth_year, :eye_color, :gender, :hair_color, :height,
                                      :mass, :skin_color, :planet_id, :url)
-    end
-
-    def define_sort_params
-      @sort_by = (params[:sort_by] || "id").to_sym
-
-      @order = (params[:order] || "asc").to_sym
-    end
-
-    def check_overflow(amount)
-      params[:page] = 1 if params[:page].to_i > (amount / params[:per].to_f).ceil
-    end
-
-    def pagination_meta(object)
-      return nil unless params[:per]
-
-      {
-        current_page: object.current_page,
-        next_page: object.next_page,
-        prev_page: object.prev_page,
-        total_pages: object.total_pages,
-        total_count: object.total_count
-      }
     end
 
     def add_related_objects

@@ -4,7 +4,9 @@ class SwUnits::ShowSerializer < SwUnitSerializer
 
     unit_attributes[object.class.to_s.downcase] = filter_additional_params(object)
 
-    add_related_objects(unit_attributes)
+    related_objects = get_related_objects(unit_attributes[object.class.to_s.downcase])
+
+    add_data_about_related_objects(unit_attributes, related_objects)
   end
 
   def filter_additional_params(object)
@@ -13,17 +15,25 @@ class SwUnits::ShowSerializer < SwUnitSerializer
     object.attributes.select { |key, _v| params.include?(key) }
   end
 
-  def add_related_objects(unit_attributes)
-    related_objects = get_related_objects(unit_attributes[object.class.to_s.downcase])
-
+  def add_data_about_related_objects(unit_attributes, related_objects)
     unit_attributes[object.class.to_s.downcase]["#{related_objects[0..-2]}_ids"] =
-      object.send(related_objects).map(&:id)
+      related_ids(related_objects)
 
-    unit_attributes[related_objects] = object.send(related_objects).map do |ro|
-      filter_additional_params(ro)
-    end
+    unit_attributes[related_objects] = related_objects(related_objects)
 
-    unit_attributes["person"]["planet"] = Planet.find(object.planet_id) if object.class.to_s == "Person"
+    object.class.to_s == "Person" ? add_planet_for_person(unit_attributes) : unit_attributes
+  end
+
+  def related_ids(related_objects)
+    object.send(related_objects).ids
+  end
+
+  def related_objects(related_objects)
+    object.send(related_objects).map { |ro| filter_additional_params(ro) }
+  end
+
+  def add_planet_for_person(unit_attributes)
+    unit_attributes["person"]["planet"] = Planet.find(object.planet_id)
 
     unit_attributes
   end
