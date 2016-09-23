@@ -193,7 +193,7 @@ require "rails_helper"
 
           get "#{units_path}/search?query=", nil, headers
 
-          expect(unit_class.first.name).to_not eq(unit_class.last.name)
+          expect(unit_class.count).to eq(23)
 
           expect(response.body).to include(unit_class.first.name)
           expect(response.body).to include(unit_class.last.name)
