@@ -17,7 +17,7 @@ Rails.application.routes.draw do
 
       resources :planets, :people, :starships, controller: "sw_units" do
         collection do
-          get "/search", to: "sw_units#search"
+          get "/search", to: "sw_units#index"
         end
       end
     end

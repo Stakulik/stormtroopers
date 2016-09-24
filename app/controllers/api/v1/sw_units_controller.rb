@@ -3,7 +3,7 @@ module Api::V1
     before_action :authenticate_request!
     before_action :set_sw_unit_class
     before_action :set_sw_unit, only: [:show, :update, :destroy]
-    before_action :set_sw_units, only: [:index, :search]
+    before_action :set_sw_units, only: [:index]
 
     def index
       prepare_sw_units_for_rendering if params[:per]
@@ -44,13 +44,6 @@ module Api::V1
       render json: @sw_unit, status: :ok, serializer: SwUnits::ShowSerializer
     end
 
-    def search
-      prepare_sw_units_for_rendering if params[:per]
-
-      render json: @sw_units, meta: pagination_meta(@sw_units), status: :ok,
-             each_serializer: SwUnits::IndexSerializer
-    end
-
     private
 
     def set_sw_unit_class
@@ -71,7 +64,7 @@ module Api::V1
       set_sort_params
 
       @sw_units =
-        if params[:action] == "index" || params[:query].empty?
+        if !params[:query] || params[:query].empty?
           @sw_unit_class.all.order(@sort_by => @order)
         else
           @sw_unit_class.search_in_name(params[:query]).reorder(@sort_by => @order)
