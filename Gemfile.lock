@@ -49,6 +49,11 @@ GEM
       simplecov (>= 0.7.1, < 1.0.0)
     coderay (1.1.1)
     concurrent-ruby (1.0.2)
+    delayed_job (4.1.2)
+      activesupport (>= 3.0, < 5.1)
+    delayed_job_active_record (4.1.1)
+      activerecord (>= 3.0, < 5.1)
+      delayed_job (>= 3.0, < 5)
     diff-lcs (1.2.5)
     docile (1.1.5)
     domain_name (0.5.20160615)
@@ -264,6 +269,7 @@ DEPENDENCIES
   bcrypt (~> 3.1.7)
   byebug
   codeclimate-test-reporter
+  delayed_job_active_record
   factory_girl_rails
   faker (~> 1.6.0)
   guard-bundler

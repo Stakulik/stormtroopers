@@ -14,7 +14,7 @@ module Api::V1
       user = User.new(user_params)
 
       if user.save
-        RegistrationMailer.confirmation_instructions(user).deliver_now
+        RegistrationMailer.confirmation_instructions(user).deliver_later
 
         render json: { success: "Please go to your inbox #{user.email} and confirm creating an account" },
                status: :created
@@ -58,7 +58,7 @@ module Api::V1
     def forgot_password
       @user.update_attribute(:reset_password_token, AuthToken.encode({ user_id: @user.id }, 120))
 
-      RegistrationMailer.reset_password_instructions(@user).deliver_now
+      RegistrationMailer.reset_password_instructions(@user).deliver_later
 
       render json: { success: "We've send instructions onto #{@user.email}" }, status: :ok
     end
